@@ -1,0 +1,455 @@
+---
+title: "uORF"
+author: "Marina Alexander"
+date: "12/16/2020"
+output:
+  pdf_document: default
+  html_document:
+    code_folding: hide
+---
+
+```{r setup, include=FALSE}
+
+# load libraries
+library(tidyverse)
+library(dplyr)
+library(knitr)
+library(dplyr)
+library(cowplot)
+
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  fig.align = 'center'
+)
+```
+
+```{r}
+
+uORFS <- read.csv("data/high_confidence_uORFS.csv") %>% 
+  rename(Gene.name = gene) %>% 
+  select(Gene.name, uORF_ID) %>% 
+  group_by(Gene.name) %>% 
+  summarise(uORF_n = n_distinct(uORF_ID))
+
+#read in the DEseq2 results 
+DE.results.rna.late<- read.csv("results/DE.results_rna.late.csv") 
+DE.results.ribo.late<- read.csv("results/DE.results_ribo.late.csv") %>% 
+  dplyr::rename(LOG2FC.ribo = log2FoldChange) %>% 
+  select(Gene.name, LOG2FC.ribo)
+
+uORF_log2FC <- DE.results.rna.late %>% 
+  left_join(DE.results.ribo.late, by = "Gene.name") %>% 
+  select(Gene.name, log2FoldChange, LOG2FC.ribo) %>% 
+  mutate(FC.rna.ribo = (LOG2FC.ribo-log2FoldChange/log2FoldChange)) %>% 
+  left_join(uORFS, by = "Gene.name") %>% 
+  mutate(uORF = case_when(uORF_n != "NA" ~ ">1 uORF", TRUE ~ "no uORF")) %>% 
+  arrange(FC.rna.ribo) %>% 
+  mutate_all(~replace(.,is.na(.), 0))
+
+uORF_plot <- ggplot(uORF_log2FC, aes(x= log2FoldChange, y =LOG2FC.ribo, color = uORF))+
+  geom_point(alpha =0.3)+
+  ylim(-4, 7.5)+
+  xlim(-4, 7.5)+
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "black")+
+  scale_color_manual(values = c("red", "blue"))+
+  facet_wrap(~uORF)+
+  theme(legend.position = "none")+
+  labs(x= "Log2Foldchange RNA-seq",
+       y = "Log2FoldChange Ribo-seq", 
+       title = "high confidence uORFs")
+
+ggsave(
+  filename = "results/uORF_plot.PNG",
+  plot = uORF_plot ,
+  device = NULL,
+  path = NULL,
+  scale = 1,
+  width = 12,
+  height = 8,
+  units = "cm",
+  dpi = 300,
+  limitsize = TRUE)
+
+```
+
+
+```{r}
+Exons_per_ORF <- read.csv("data/homo.sapiens.transcripts.csv") %>% 
+  rename(Gene.name = Gene_Symbol) %>% 
+  select(Gene.name, Coding_Exons_per_RNA) %>% 
+  group_by(Gene.name) %>% 
+  summarise(mean_exons = mean(Coding_Exons_per_RNA)) %>% 
+  filter(mean_exons != "NA")
+
+exons_log2FC <- DE.results.rna.late %>% 
+  left_join(DE.results.ribo.late, by = "Gene.name") %>% 
+  select(Gene.name, log2FoldChange, LOG2FC.ribo) %>% 
+  mutate(FC.rna.ribo = (LOG2FC.ribo-log2FoldChange/log2FoldChange)) %>%
+  mutate(log2Foldchange.rna.ribo = log2(FC.rna.ribo)) %>%
+  mutate(ratio =LOG2FC.ribo/log2FoldChange ) %>% 
+  left_join(Exons_per_ORF, by = "Gene.name") %>% 
+  mutate_all(~replace(.,is.na(.), 0)) %>%
+  mutate(exons = case_when(mean_exons<10 ~ "<10 exons", TRUE ~ ">10 exons"))
+
+ggplot(exons_log2FC, aes(x= ratio, y = mean_exons))+
+  geom_point()+
+  geom_vline(xintercept = 1, linetype = "dashed", color = "blue")+
+  scale_x_log10()
+
+exons_log2FC$exons <- factor(exons_log2FC$exons, levels = c(">10 exons", "<10 exons"))
+
+exons_plot <- ggplot(exons_log2FC, aes(x= log2FoldChange, y =LOG2FC.ribo, color = exons))+
+  geom_point(alpha =0.3)+
+  ylim(-4, 7.5)+
+  xlim(-4, 7.5)+
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "black")+
+  scale_color_manual(values = c("red", "blue"))+
+  facet_wrap(~exons)+
+  theme(legend.position = "none")+
+  labs(x= "Log2Foldchange RNA-seq",
+       y = "Log2FoldChange Ribo-seq", 
+       title = "number of coding exons")
+
+
+ggsave(
+  filename = "results/exons_plot.PNG",
+  plot = exons_plot,
+  device = NULL,
+  path = NULL,
+  scale = 1,
+  width = 12,
+  height = 8,
+  units = "cm",
+  dpi = 300,
+  limitsize = TRUE)
+
+```
+
+```{r}
+
+
+half_life <- read.csv("data/Sharova_mRNA_half_life.csv") %>% 
+  rename(Gene.name = geneSymbol)
+
+half_life_log2FC <- DE.results.rna.late %>% 
+  left_join(DE.results.ribo.late, by = "Gene.name") %>% 
+  select(Gene.name, log2FoldChange, LOG2FC.ribo) %>% 
+  mutate(FC.rna.ribo = (LOG2FC.ribo-log2FoldChange/log2FoldChange)) %>%
+  mutate(log2Foldchange.rna.ribo = log2(FC.rna.ribo)) %>%
+  mutate(ratio =LOG2FC.ribo/log2FoldChange ) %>%
+  mutate_all(~replace(.,is.na(.), 0)) %>%
+  left_join(half_life, by = "Gene.name") %>% 
+  mutate(stability = case_when(haf_life_hr<5 ~ "<5 hours",
+                               haf_life_hr>5 ~ ">5 hours", 
+                               is.na(haf_life_hr)~"unknown",
+                               TRUE ~as.character(haf_life_hr))) %>% 
+  filter(stability != "unknown")
+
+half_life_log2FC %>% 
+  select(Gene.name, haf_life_hr) %>% 
+  filter(Gene.name == "IRF1")
+
+half_life_log2FC$stability <- factor(half_life_log2FC$stability, levels = c(">5 hours", "<5 hours"))
+
+stability_plot <- ggplot(half_life_log2FC, aes(x= log2FoldChange, y =LOG2FC.ribo, color = stability))+
+  geom_point(alpha =0.3)+
+  ylim(-4, 7.5)+
+  xlim(-4, 7.5)+
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "black")+
+  scale_color_manual(values = c("red", "blue", "black"))+
+  facet_wrap(~stability)+
+  theme(legend.position = "none")+
+  labs(x= "Log2Foldchange RNA-seq",
+       y = "Log2FoldChange Ribo-seq", 
+       title = "mRNA half life")
+
+
+
+ggsave(
+  filename = "results/stability_plot.PNG",
+  plot = stability_plot,
+  device = NULL,
+  path = NULL,
+  scale = 1,
+  width = 12,
+  height = 8,
+  units = "cm",
+  dpi = 300,
+  limitsize = TRUE)
+
+```
+
+```{r}
+
+
+
+
+```
+
+
+
+```{r}
+
+riborex <- read.csv("results/riborex_infect24h_all.csv") %>% 
+  dplyr::rename(Gene.name = Gene.name.y) %>% 
+  arrange(log2FoldChange)
+
+half_life_riborex <- riborex %>% 
+  select(-X) %>% 
+  left_join(half_life, by = "Gene.name") %>% 
+  mutate(stability = case_when(haf_life_hr<5 ~ "half-life <5 hours",
+                               haf_life_hr>5 ~ "half life >5 hours", 
+                               is.na(haf_life_hr)~"unknown",
+                               TRUE ~as.character(haf_life_hr))) %>% 
+  filter(stability != "unknown") %>% 
+  mutate(Diff_expn = case_when(log2FoldChange >1& padj <0.05 ~"up", log2FoldChange <(-1)& padj <0.05~"down")) %>% 
+  arrange(Diff_expn)
+
+count_stable<- half_life_riborex %>% 
+  filter(stability == "half life >5 hours")
+count_unstable <- half_life_riborex %>% 
+  filter(stability == "half-life <5 hours")
+
+significant_ribo.late_stability <- half_life_riborex %>% 
+  filter(log2FoldChange>1|log2FoldChange<(-1)) %>% 
+  filter(padj<0.05) %>% 
+  mutate(Diff_expn = case_when(log2FoldChange >1& padj <0.05 ~"up", log2FoldChange <(-1)& padj <0.05~"down"))
+
+count_up_down_unstable.late <- significant_ribo.late_stability %>%
+  filter(stability == "half-life <5 hours") %>% 
+  group_by(Diff_expn) %>%
+  tally()
+
+count_up_down_stable.late <- significant_ribo.late_stability %>%
+  filter(stability == "half life >5 hours") %>% 
+  group_by(Diff_expn) %>%
+  tally()
+
+#unstable n = 73,n= 2037, n = 4
+#stable n=35, n=4706 , n= 23 
+data_text_stability <- data.frame(
+  label = c("n=35                n=4706                n=23", "n=73                n=2037                n=4"),
+  stability= c("half life >5 hours", "half-life <5 hours"))
+
+riborex_stability_plot <- ggplot(half_life_riborex, aes(x=log2FoldChange, y = -log10(padj), col=Diff_expn ))+
+  geom_point(alpha = 0.4, size =2)+
+  geom_vline(xintercept = c(-1, 1), col = "black", linetype = "dashed")+
+  geom_hline(yintercept = -log10(0.05), col = "black", linetype = "dashed")+
+  facet_wrap(~stability)+
+  geom_text(data = significant_ribo.late_stability, aes(x =log2FoldChange , y = -log10(padj), label = Gene.name), 
+            hjust = -0.2, vjust = -0.75, size = 2, check_overlap = TRUE, color = "black", inherit.aes = FALSE) +
+  labs(x= "log2 Fold Change translation efficiency", 
+       y = "-log10 adjusted p-value")+
+  theme_set(theme_classic(base_size = 10))+
+  theme(legend.position = "none")+
+  geom_text(data = data_text_stability, mapping = aes(x=0, y = 12.5, label = label ), color = "black", size = 3)
+
+
+ggsave(filename = "results/riborex_volcano_stability_plot.png", plot =riborex_stability_plot , width = 19, height = 25, dpi = 300, units = "cm")
+
+```
+
+```{r}
+
+half_life_riborex_box <- half_life_riborex %>% 
+  mutate(stability = str_replace(stability, "half-life <5 hours", "<5 hrs")) %>% 
+  mutate(stability = str_replace(stability, "half life >5 hours", ">5 hrs"))
+
+riborex_stability_boxplot <- ggplot(half_life_riborex_box, aes(x= stability, y = log2FoldChange))+
+  geom_boxplot()+
+  labs(x = "mRNA half-life", 
+       y = "log2 Fold Change translation efficiency")+
+  theme_set(theme_classic(base_size = 10))
+
+ggsave(filename = "results/riborex_stability_boxplot.png", plot = riborex_stability_boxplot, width = 5, height = 8, dpi = 300, units = "cm")
+
+
+stability.lm <- lm(log2FoldChange ~ stability, data = half_life_riborex)
+stability.av <- aov(stability.lm)
+summary(stability.av)
+
+```
+
+
+```{r}
+
+tukey.test <- TukeyHSD(stability.av)
+tukey.test
+
+
+```
+
+
+```{r}
+
+riborex <- read.csv("results/riborex_infect24h_all.csv") %>% 
+  dplyr::rename(Gene.name = Gene.name.y)
+
+riborex %>% 
+  filter(Gene.name == "BACH2")
+
+uORFs_riborex <- riborex %>% 
+  select(-X) %>% 
+  left_join(uORFS, by = "Gene.name") %>% 
+  mutate(uORF = case_when(uORF_n != "NA" ~ "uORF", TRUE ~ "no uORF")) %>% 
+  mutate_all(~replace(.,is.na(.), 0)) %>% 
+  mutate(Diff_expn = case_when(log2FoldChange >1& padj <0.05 ~"up", log2FoldChange <(-1)& padj <0.05~"down")) %>% 
+  arrange(Diff_expn)
+
+count <- uORFs_riborex %>%
+  filter(uORF == "uORF")
+  
+significant_ribo.late_uORFs <- uORFs_riborex %>% 
+  filter(log2FoldChange>1|log2FoldChange<(-1)) %>% 
+  filter(padj<0.05) %>% 
+  mutate(Diff_expn = case_when(log2FoldChange >1& padj <0.05 ~"up", log2FoldChange <(-1)& padj <0.05~"down"))
+
+count_up_down_nouORF.late <- significant_ribo.late_uORFs %>%
+  filter(uORF == "no uORF") %>% 
+  group_by(Diff_expn) %>%
+  tally()
+
+count_up_down_uORF.late <- significant_ribo.late_uORFs %>%
+  filter(uORF == "uORF") %>% 
+  group_by(Diff_expn) %>%
+  tally()
+
+uORFs_riborex$uORF <- factor(uORFs_riborex$uORF, levels = c("no uORF", "uORF"))
+
+data_text <- data.frame(
+  label = c("n=104                n=6953                n=35", "n=49                n=2604                n=6"),
+  uORF= c("no uORF", "uORF"))
+
+riborex_uORFs_plot <- ggplot(uORFs_riborex, aes(x=log2FoldChange, y = -log10(padj), col=Diff_expn ))+
+geom_point(alpha = 0.4, size =2)+
+  geom_vline(xintercept = c(-1, 1), col = "black", linetype = "dashed")+
+  geom_hline(yintercept = -log10(0.05), col = "black", linetype = "dashed")+
+  facet_wrap(~uORF)+
+  geom_text(data = significant_ribo.late_uORFs, aes(x =log2FoldChange , y = -log10(padj), label = Gene.name), 
+            hjust = -0.2, vjust = -0.75, size = 2, check_overlap = TRUE, color = "black", inherit.aes = FALSE)+
+  labs(x= "log2 Fold Change translation efficiency", 
+       y = "-log10 adjusted p-value")+
+  theme_set(theme_classic(base_size = 10))+
+  theme(legend.position = "none")+
+  geom_text(data = data_text, mapping = aes(x=0, y = 12.5, label = label ), color = "black", size = 3)
+
+plot_mRNA_feat <- plot_grid(riborex_stability_plot, riborex_uORFs_plot, nrow = 2)
+
+ggsave(filename = "results/riborex_plot.png", plot = plot_mRNA_feat, width = 14, height = 20, dpi = 300, units = "cm")
+
+
+```
+
+```{r}
+riborex_uORFs_boxplot <- ggplot(uORFs_riborex, aes(x= uORF, y = log2FoldChange))+
+  geom_boxplot()+
+  labs(x = "", 
+       y = "log2 Fold Change translation efficiency")+
+  theme_set(theme_classic(base_size = 10))
+
+
+ggsave(filename = "results/riborex_uORFs_boxplot.png", plot = riborex_uORFs_boxplot, width = 5, height = 8, dpi = 300, units = "cm")
+
+uORF.lm <- lm(log2FoldChange ~ uORF, data = uORFs_riborex)
+uORF.av <- aov(uORF.lm)
+summary(uORF.av)
+
+
+tukey.test <- TukeyHSD(uORF.av)
+tukey.test
+
+```
+
+```{r}
+
+EIF2AP_increased <- read.csv("data/EIF2AP_increased.csv") %>% 
+  dplyr::rename(gene = EIF2A_P_increased)
+
+all_uORFS <- read.csv("data/all_uORF_genes.csv") %>% 
+  unique() %>%
+  dplyr::rename(gene = all_uORF) %>% 
+  inner_join(EIF2AP_increased)
+
+SARSCOV2_EIF2AP <- read.csv("data/EIF2AP_SARSCOV2.csv") %>% 
+  inner_join(all_uORFS, by = "gene")
+
+```
+
+
+```{r}
+
+venn_diagram <- significant_ribo.late_uORFs %>%
+  full_join(significant_ribo.late_stability, by = "Gene.name")
+  
+down <- venn_diagram %>% 
+  filter(Diff_expn.x == "down") %>% 
+  mutate(stability = replace_na(stability, "unknown")) %>% 
+  select(Gene.name, stability, uORF) %>% 
+  group_by(stability, uORF) %>% 
+  count(stability, uORF, sort = TRUE) %>% 
+  filter(stability != "unknown")
+
+up <- venn_diagram %>% 
+  filter(Diff_expn.x == "up") %>% 
+  mutate(stability = replace_na(stability, "unknown")) %>% 
+  select(Gene.name, stability, uORF) %>% 
+  group_by(stability, uORF) %>% 
+  count(stability, uORF, sort = TRUE)
+
+unstable <- venn_diagram %>% 
+  filter(stability == "<5 hours") %>%
+  select(Gene.name, stability, uORF, Diff_expn.x) %>%
+  count(Diff_expn.x, sort = TRUE)
+
+stable <- venn_diagram %>% 
+  filter(stability == ">5 hours") %>%
+  select(Gene.name, stability, uORF, Diff_expn.x) %>%
+  count(Diff_expn.x, sort = TRUE)
+
+uORF <- venn_diagram %>% 
+  filter(uORF == ">1 uORF") %>%
+  select(Gene.name, stability, uORF, Diff_expn.x) %>%
+  count(Diff_expn.x, sort = TRUE)
+
+no_uORF <- venn_diagram %>% 
+  filter(uORF== "no uORF") %>%
+  select(Gene.name, stability, uORF, Diff_expn.x) %>%
+  count(Diff_expn.x, sort = TRUE)
+```
+
+```{r}
+
+up_unstable <- venn_diagram %>% 
+  filter(Diff_expn.x == "up") %>% 
+  mutate(stability = replace_na(stability, "unknown")) %>% 
+  select(Gene.name, stability, uORF) %>%
+  filter(stability == "<5 hours")
+
+up_stable <- venn_diagram %>% 
+  filter(Diff_expn.x == "up") %>% 
+  mutate(stability = replace_na(stability, "unknown")) %>% 
+  select(Gene.name, stability, uORF) %>%
+  filter(stability == ">5 hours")
+
+up_unknown <- venn_diagram %>% 
+  filter(Diff_expn.x == "up") %>% 
+  mutate(stability = replace_na(stability, "unknown")) %>% 
+  select(Gene.name, stability, uORF) %>%
+  filter(stability == "unknown")
+
+up_no_uORF <- venn_diagram %>% 
+  filter(Diff_expn.x == "up") %>% 
+  mutate(stability = replace_na(stability, "unknown")) %>% 
+  select(Gene.name, stability, uORF) %>%
+  filter(uORF == "no uORF")
+
+up_uORF <- venn_diagram %>% 
+  filter(Diff_expn.x == "up") %>% 
+  mutate(stability = replace_na(stability, "unknown")) %>% 
+  select(Gene.name, stability, uORF) %>%
+  filter(uORF == ">1 uORF")
+
+```
+

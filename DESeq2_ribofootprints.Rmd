@@ -1,0 +1,206 @@
+---
+title: "DESEq2 of ribo counts"
+author: "Marina Alexander"
+date: "30/10/2020"
+output:
+  pdf_document: default
+  html_document:
+    code_folding: hide
+---
+
+```{r setup, include=FALSE}
+
+# load libraries
+library(tidyverse)
+library(dplyr)
+library(knitr)
+library(dplyr)
+library(DESeq2)
+
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  fig.align = 'center'
+)
+```
+
+```{r }
+#read in the count and metadata tables
+counts_ribo.host.6h<- read.csv("data/ribo.host.6h.csv", row.names=1, header = TRUE)
+counts_ribo.host.24h<- read.csv("data/ribo.host.24h.csv", row.names=1, header = TRUE)
+counts_ribo.virus<- read.csv("data/ribo.virus.csv",row.names=1, header = TRUE)
+
+meta_ribo.host.6h <- read.csv("data/ribo.host.early.metadata.csv", row.names=1, header = TRUE)
+meta_ribo.host.24h <- read.csv("data/ribo.host.late.metadata.csv",row.names=1, header = TRUE)
+meta_ribo.virus <- read.csv("data/ribo.virus.metadata.csv",row.names=1, header = TRUE)
+
+```
+
+
+```{r }
+#check dimensions of count and metadata file
+all(rownames(meta_ribo.host.6h) == colnames (counts_ribo.host.6h))
+all(rownames(meta_ribo.host.24h) == colnames (counts_ribo.host.24h))
+all(rownames(meta_ribo.virus) == colnames (counts_ribo.virus))
+```
+
+
+```{r }
+# Calculate counts per million.
+# Filter rows: at least 3 samples must have at least 1 cpm.
+# Retain rows according to 'keep' and nothing on columns.
+cpm.early <- apply(counts_ribo.host.6h, 2, function(x) (x/sum(x))*1000000)
+keep.early <- rowSums( cpm.early >= 1 ) >=3
+filtered.early <- counts_ribo.host.6h[ keep.early, ]
+dim(filtered.early)
+
+cpm.late <- apply(counts_ribo.host.24h, 2, function(x) (x/sum(x))*1000000)
+keep.late <- rowSums( cpm.late >= 1 ) >=3
+filtered.late <- counts_ribo.host.24h[ keep.late, ]
+dim(filtered.late)
+
+cpm.virus <- apply(counts_ribo.virus, 2, function(x) (x/sum(x))*1000000)
+keep.virus <- rowSums( cpm.virus >= 1 ) >=3
+filtered.virus <- counts_ribo.virus[ keep.virus, ]
+dim(filtered.virus)
+
+```
+
+
+```{r }
+# Construct a SummarizedExperiment object:
+dds_early <- DESeqDataSetFromMatrix(
+  countData = filtered.early,
+  colData = meta_ribo.host.6h,
+  design = ~ condition) # ~ is representative of 'by', i.e. compare by condition
+
+dds_late <- DESeqDataSetFromMatrix(
+  countData = filtered.late,
+  colData = meta_ribo.host.24h,
+  design = ~ condition) # ~ is representative of 'by', i.e. compare by condition
+
+dds_virus <- DESeqDataSetFromMatrix(
+  countData = filtered.virus,
+  colData = meta_ribo.virus,
+  design = ~ condition) # ~ is representative of 'by', i.e. compare by condition
+
+```
+
+
+```{r }
+# Perform DE testing:
+dds_early <- DESeq(dds_early)
+dds_late <- DESeq(dds_late)
+dds_virus <- DESeq(dds_virus)
+```
+
+
+```{r }
+# Output normalized counts:
+norm.counts_early <- counts (dds_early, normalized=TRUE)
+write.csv(norm.counts_early, file="results/DESeq2_ribo_norm.counts_early.csv")
+norm.counts_late <- counts (dds_late, normalized=TRUE)
+write.csv(norm.counts_late, file="results/DESeq2_ribo_norm.counts_late.csv")
+norm.counts_virus <- counts (dds_virus, normalized=TRUE)
+write.csv(norm.counts_virus, file="results/DESeq2_ribo_norm.counts_virus.csv")
+```
+
+```{r}
+#expaning the gene information 
+gene_name <- read.delim("data/Geneid_name_GO.txt") %>% 
+  dplyr::rename(Geneid = Gene.stable.ID.version) %>%
+  dplyr::select(Geneid, Gene.name) %>% 
+  unique()
+
+#adding immune genes 
+immune_genes <- read.csv("data/InnateDB_genes.csv") %>% 
+  filter(species == "Homo sapiens") %>% 
+  dplyr::rename(Geneid = ensembl) %>% 
+  dplyr::select(Geneid, name, function.) %>% 
+  dplyr::rename(Gene.name = name)
+
+
+```
+
+```{r }
+# Convert results to dataframe:
+DE.res_early <- results(dds_early, contrast = c("condition", "infect6h", "mock")) %>% 
+  as_tibble(rownames = "Geneid") %>%
+  arrange(padj) %>% 
+  left_join(gene_name, by = "Geneid") %>% 
+  mutate(Diff_expn = case_when(log2FoldChange >1& padj <0.05 ~"up", log2FoldChange <(-1)& padj <0.05~"down"))
+
+significant_ribo.early <- DE.res_early %>% 
+  filter(log2FoldChange <(-1)| log2FoldChange >(1)) %>% 
+  filter(padj <0.05) %>% 
+  dplyr::select(Gene.name, log2FoldChange, padj)
+write.csv(significant_ribo.early, "results/signif_ribo.early.csv")
+
+DE.res_late.ribo <- results(dds_late, contrast = c("condition", "infect24h", "mock")) %>%
+  as_tibble(rownames = "Geneid") %>%
+  arrange(padj) %>% 
+  left_join(gene_name, by = "Geneid") %>% 
+  mutate(Diff_expn = case_when(log2FoldChange >1& padj <0.05 ~"up", log2FoldChange <(-1)& padj <0.05~"down"))
+write.csv(DE.res_late.ribo, "results/DE.results_ribo.late.csv")
+
+# DE.res_late.ribo %>% 
+#   filter(Gene.name == "BACH2")
+
+significant_ribo.late <- DE.res_late.ribo %>% 
+  filter(log2FoldChange <(-1)| log2FoldChange >(1)) %>% 
+  filter(padj <0.05) %>% 
+  dplyr::select(Gene.name, log2FoldChange, padj) %>% 
+  arrange(log2FoldChange)
+write.csv(significant_ribo.late, "results/signif_ribo.late.csv")
+
+count_up_down.late <- DE.res_late.ribo %>% 
+  group_by(Diff_expn) %>%
+  tally()
+
+DE.res_virus <- results(dds_virus, contrast = c("condition", "infect24h", "infect6h")) %>% 
+  as_tibble(rownames = "Geneid") %>%
+  arrange(padj) %>% 
+  left_join(gene_name, by = "Geneid") %>% 
+  mutate(Diff_expn = case_when(log2FoldChange >1& padj <0.05 ~"up", log2FoldChange <(-1)& padj <0.05~"down"))
+
+significant_ribo.virus <- DE.res_virus %>% 
+  filter(log2FoldChange <(-1)| log2FoldChange >(1)) %>% 
+  filter(padj <0.05) %>% 
+  dplyr::select(Geneid, Gene.name, log2FoldChange, padj) %>% 
+  arrange(log2FoldChange)
+write.csv(significant_ribo.virus, "results/signif_ribo.virus.csv")
+
+  
+```
+
+
+```{r}
+
+#making volcano plots
+plot_volcano_ribo.late <- ggplot(data=DE.res_late.ribo, aes(x=log2FoldChange, 
+                                                                    y=-log10(padj),col=Diff_expn)) +
+  geom_point(alpha = 0.4, size = 1.5) +
+  geom_vline(xintercept=c(-1, 1), col="black", linetype = "dashed") +
+  xlim(-1.5, 2.5)+
+  geom_hline(yintercept=-log10(0.05), col="black", linetype = "dashed") +
+  geom_text(data = significant_ribo.late, aes(x =log2FoldChange , y = -log10(padj), label = Gene.name), 
+            hjust = 0.5, vjust = -0.5, size = 1.75, check_overlap = TRUE, color = "black") +
+  annotate("text", x= c(-1.25,0,1.25), y= c(20,20, 20), label = c("n=3","n=11434","n=18"), color = "black", size = 3)+
+  labs(y="-log10 adjusted p-value", x="log2FoldChange") +
+  theme_set(theme_classic(base_size = 10))+
+  theme(legend.position = "none")
+
+
+
+ggsave(filename = "results/plot_volcano_ribo.late.png", plot = plot_volcano_ribo.late, width = 14, height = 11, dpi = 600, units = "cm")
+
+```
+
+```{r}
+
+
+
+
+```
+

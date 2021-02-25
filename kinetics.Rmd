@@ -1,0 +1,166 @@
+---
+title: "viral kinetics"
+author: "Marina Alexander"
+date: "12/15/2020"
+output:
+  pdf_document: default
+  html_document:
+    code_folding: hide
+---
+
+```{r setup, include=FALSE}
+
+# load libraries
+library(tidyverse)
+library(dplyr)
+library(knitr)
+library(dplyr)
+
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  fig.align = 'center'
+)
+```
+
+```{r}
+kinetics_titres <- read.csv("data/SARSCOV2_calu3_TCID50_kinetics.csv")
+
+###pvalue calculation 
+###perform ANOVA ########
+kinetics_timepoint <- kinetics_titres %>% 
+  filter(timepoint == 1| timepoint == 24) %>% 
+  mutate(timepoint = as.factor(timepoint)) %>% 
+  select(timepoint, TCID50) %>% 
+  mutate(TCID50 = as.numeric(TCID50))
+
+summary(kinetics_timepoint)
+
+t.test <- t.test(TCID50 ~ timepoint, data = kinetics_timepoint, alternative = "less")
+
+```
+
+
+```{r}
+
+###Summarise for plotting bar graph #####
+kinetics_titres_stats <- kinetics_titres %>% 
+  group_by(timepoint) %>% 
+  summarise(mean = mean(TCID50), sd = sd(TCID50)) %>% 
+  mutate(upper = mean + sd) %>% 
+  mutate(lower = mean - sd) %>%
+  mutate(timepoint = as.numeric(timepoint))
+
+##### plot the data ################
+SARSCOV2_TCID50 <- ggplot(kinetics_titres_stats, aes(y= mean, x=timepoint))+
+  geom_line()+
+  geom_point()+
+  scale_x_continuous(breaks=c(0,3, 6, 12, 24, 48))+
+  scale_y_log10(breaks = scales::trans_breaks("log10", function(x) 10^x),labels = scales::trans_format("log10",
+                                                                                    scales::math_format(10^.x)))+
+  annotation_logticks(sides = "l") +
+  geom_errorbar(aes(ymin = lower, ymax = upper), width =0.2, position = position_dodge(0.9)) +
+  theme_set(theme_classic(base_size = 8)) +
+  labs(x = "post-infection (h)",
+       y = expression(paste(TCID[50], mL^-1)),
+       tag = "A")
+
+ggsave(
+  filename = "results/TCID50_kinetics.PNG",
+  plot = SARSCOV2_TCID50,
+  device = NULL,
+  path = NULL,
+  scale = 1,
+  width = 6,
+  height = 6,
+  units = "cm",
+  dpi = 300,
+  limitsize = TRUE)
+
+
+```
+
+
+```{r}
+kinetics_RNA <- read.csv("data/SARSCOV2_calu3_RNA_kinetics.csv")
+
+###Summarise for plotting bar graph #####
+kinetics_RNA_stats <- kinetics_RNA %>% 
+  group_by(timepoint) %>% 
+  summarise(mean = mean(FC), sd = sd(FC)) %>% 
+  mutate(upper = mean + sd) %>% 
+  mutate(lower = mean - sd) %>%
+  mutate(timepoint = as.numeric(timepoint))
+##### plot the data ################
+SARSCOV2_RNA <- ggplot(kinetics_RNA_stats, aes(y= mean, x=timepoint))+
+  geom_line()+
+  geom_point()+
+  ylim(0, 200)+
+  scale_x_continuous(breaks=c(0,3, 6, 12, 24, 48))+
+  geom_errorbar(aes(ymin = lower, ymax = upper), width =0.2, position = position_dodge(0.9)) +
+  theme_set(theme_classic(base_size = 8)) +
+  labs(y = "Relative SARS-CoV-2 RNA \n (fold change over inoculum)",
+       x = "post-infection (h)",
+       tag = "B")
+  
+ggsave(
+  filename = "results/SARSCOV2_RNA.PNG",
+  plot = SARSCOV2_RNA,
+  device = NULL,
+  path = NULL,
+  scale = 1,
+  width = 6,
+  height = 6,
+  units = "cm",
+  dpi = 300,
+  limitsize = TRUE)
+
+
+```
+
+```{r}
+
+kinetics_protein <- read.csv("data/SARSCOV2_calu3_protein_kinetics.csv")
+
+###Summarise for plotting bar graph #####
+kinetics_protein_stats <- kinetics_protein %>% 
+  group_by(timepoint) %>% 
+  summarise(mean = mean(protein), sd = sd(protein)) %>% 
+  mutate(upper = mean + sd) %>% 
+  mutate(lower = mean - sd) %>%
+  mutate(timepoint = as.numeric(timepoint))
+##### plot the data ################
+SARSCOV2_protein <- ggplot(kinetics_protein_stats, aes(y= mean, x=timepoint))+
+  geom_line()+
+  geom_point()+
+  ylim(0, 150)+
+  scale_x_continuous(breaks=c(0,3, 6, 12, 24, 48))+
+  geom_errorbar(aes(ymin = lower, ymax = upper), width =0.2, position = position_dodge(0.9)) +
+  theme_set(theme_classic(base_size = 8)) +
+  labs(y = "Relative SARS-CoV-2 N protein \n (fold change over inoculum)",
+       x = "post-infection (h)",
+       tag = "C")
+  
+ggsave(
+  filename = "results/SARSCOV2_protein.PNG",
+  plot = SARSCOV2_protein,
+  device = NULL,
+  path = NULL,
+  scale = 1,
+  width = 6,
+  height = 6,
+  units = "cm",
+  dpi = 300,
+  limitsize = TRUE)
+  
+  
+
+```
+
+
+
+```
+
+```
+

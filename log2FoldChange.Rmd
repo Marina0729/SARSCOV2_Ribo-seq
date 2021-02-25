@@ -1,0 +1,376 @@
+---
+title: "Log2Foldchange"
+author: "Marina Alexander"
+date: "05/11/2020"
+output:
+  pdf_document: default
+  html_document:
+    code_folding: hide
+---
+
+```{r setup, include=FALSE}
+
+# load libraries
+library(tidyverse)
+library(dplyr)
+library(knitr)
+library(dplyr)
+library(stringr)
+
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  fig.align = 'center'
+)
+```
+
+```{r }
+#read in the DEseq2 results 
+DE.results.rna.late<- read.csv("results/DE.results_rna.late.csv") 
+DE.results.ribo.late<- read.csv("results/DE.results_ribo.late.csv")
+
+
+```
+
+`
+```{r}
+rna_up <- DE.results.rna.late %>%
+  filter(log2FoldChange >1) %>% 
+  dplyr::rename(baseMean.rna = baseMean, log2FoldChange.rna = log2FoldChange, 
+                padj.rna = padj) %>% 
+  dplyr::select(Gene.name, baseMean.rna, log2FoldChange.rna, padj.rna ) %>% 
+  mutate(Gene.name = as.character(Gene.name))
+
+rna_up_list <- rna_up %>% 
+  dplyr::select(Gene.name)
+write.csv(rna_up_list, "results/rna_up_list.csv ")
+
+
+half_life <- read.csv("data/Sharova_mRNA_half_life.csv") %>% 
+  dplyr::rename( Gene.name = geneSymbol)
+
+
+rna_ribo_log2FoldChange<- DE.results.ribo.late %>%
+  dplyr::rename(baseMean.ribo = baseMean, log2FoldChange.ribo = log2FoldChange,
+                padj.ribo = padj) %>% 
+  right_join(rna_up, by ="Gene.name") %>%
+  mutate(log2FoldChange.ribo = replace_na(log2FoldChange.ribo, 0)) %>% 
+  mutate(log2FoldChange.ribo = as.numeric(log2FoldChange.ribo)) %>% 
+  dplyr::select(Gene.name, baseMean.rna,baseMean.ribo,log2FoldChange.rna,log2FoldChange.ribo,
+                padj.rna, padj.ribo) %>%
+  mutate(Gene.name = as.character(Gene.name)) %>% 
+  left_join(half_life, by = "Gene.name") %>%
+  mutate(half_life_hour = case_when(
+      haf_life_hr < 3 ~ "<3hr",
+      haf_life_hr > 3 ~ ">3hr",
+      TRUE ~ "unknown"))
+
+      
+
+plot_log2FoldChange_halflife <- ggplot(rna_ribo_log2FoldChange,
+                              aes(x = log2FoldChange.rna, 
+                                  y = log2FoldChange.ribo, 
+                                  color = half_life_hour))+
+  geom_point(size = 1.5, alpha = 0.5)+
+  scale_x_log10()+
+  geom_hline(yintercept = 1, linetype = "dashed", color = "blue")+
+  geom_vline(xintercept = 1.5, linetype = "dashed", color = "blue")+
+    geom_text(data = rna_ribo_log2FoldChange, aes(x = log2FoldChange.rna, y =log2FoldChange.ribo,label = Gene.name),hjust = 0.5,vjust = -0.5, size = 1.5,check_overlap=TRUE, color = "black")+
+  labs(x = "transcript log2Foldchange", 
+       y = "ribosome log2Foldchange", 
+       color = "mRNA half life")+
+  theme_minimal()
+  
+
+ggsave(
+  filename = "results/log2FoldChange_ribo.rna_halflife.PNG",
+  plot = plot_log2FoldChange_halflife,
+  width = 20,
+  height =12,
+  units = "cm",
+  dpi = 300,
+  limitsize = TRUE)
+
+    
+```
+
+
+```{r}
+
+ribo_up<- DE.results.ribo.late %>%
+  dplyr::rename(baseMean.ribo = baseMean, log2FoldChange.ribo = log2FoldChange,
+                padj.ribo = padj) %>% 
+  right_join(rna_up, by ="Gene.name") %>%
+  filter(log2FoldChange.ribo>1) %>% 
+  dplyr::select(Gene.name)
+
+ribo_notup <- DE.results.ribo.late %>%
+  dplyr::rename(baseMean.ribo = baseMean, log2FoldChange.ribo = log2FoldChange,
+                padj.ribo = padj) %>% 
+  right_join(rna_up, by ="Gene.name") %>%
+  filter(log2FoldChange.ribo<1) %>% 
+  dplyr::select(Gene.name)
+
+
+
+```
+
+
+```{r}
+rna_ISGs.late.lung <- read.csv("data/ISGs_logFC.csv") %>% 
+  dplyr::rename(Gene.name = Gene.Name) %>% 
+  select(Gene.name) %>% 
+  unique()
+
+write.csv(rna_ISGs.late.lung, "results/rna_ISGs.late.lung.csv")
+
+ribo <- DE.results.ribo.late %>% 
+  filter(log2FoldChange >1)
+
+write.csv(ribo, "results/Log2FC_morethan1.ribo.csv")
+
+ribo_ISGs.late.lung <- read.csv("data/ISGs_ribo.logFC.csv") %>% 
+  dplyr::rename(Gene.name = Gene.Name) %>% 
+  select(Gene.name) %>% 
+  unique()
+write.csv(ribo_ISGs.late.lung, "results/ribo_ISGs.late.lung.csv")
+
+```
+
+
+```{r}
+
+
+H5N1 <- read.csv("data/Up_regulated_genes_SARS_Flu.csv") %>% 
+  dplyr::select(InfluenzaA_H5N1.1) %>%
+  filter(!str_detect(InfluenzaA_H5N1.1, "LOC")) %>% 
+  filter(!str_detect(InfluenzaA_H5N1.1, "orf")) %>% 
+  filter(InfluenzaA_H5N1.1 != "") %>% 
+  filter(!str_detect(InfluenzaA_H5N1.1, "MIR")) %>% 
+  filter(!str_detect(InfluenzaA_H5N1.1, "-0")) %>% 
+  filter(!str_detect(InfluenzaA_H3N2, "X_"))
+write.csv(H5N1, "results/H5N1.csv")
+
+H3N2 <- read.csv("data/Up_regulated_genes_SARS_Flu.csv") %>% 
+  dplyr::select(InfluenzaA_H3N2) %>%
+  filter(!str_detect(InfluenzaA_H3N2, "LOC")) %>% 
+  filter(!str_detect(InfluenzaA_H3N2, "orf")) %>%
+  filter(InfluenzaA_H3N2 != "") %>% 
+  filter(!str_detect(InfluenzaA_H3N2, "MIR")) %>% 
+  filter(!str_detect(InfluenzaA_H3N2, "-0")) %>%
+  filter(!str_detect(InfluenzaA_H3N2, "X_"))
+write.csv(H3N2, "results/H3N2.csv")
+
+H7N9 <- read.csv("data/Up_regulated_genes_SARS_Flu.csv") %>% 
+  dplyr::select(InfluenzaA_H7N9) %>%
+  filter(!str_detect(InfluenzaA_H7N9, "LOC")) %>% 
+  filter(!str_detect(InfluenzaA_H7N9, "orf")) %>%
+  filter(InfluenzaA_H7N9 != "") %>% 
+  filter(!str_detect(InfluenzaA_H7N9, "MIR")) %>% 
+  filter(!str_detect(InfluenzaA_H7N9, "-0")) %>%
+  filter(!str_detect(InfluenzaA_H7N9, "X_"))
+write.csv(H7N9, "results/H7N9.csv")
+
+SARSCOV2 <- read.csv("data/Up_regulated_genes_SARS_Flu.csv") %>% 
+  dplyr::select(SARSCOV2) %>% 
+  filter(SARSCOV2 != "")
+write.csv(SARSCOV2, "results/SARSCOV2.csv")
+
+Antiviral_defense <- read.csv("data/Up_regulated_genes_SARS_Flu.csv") %>%
+  mutate(antiviral_defense = str_remove_all(keyword_Antiviral.defense_KW.0051, "_HUMAN")) %>% 
+  dplyr::select(antiviral_defense) %>% 
+  filter(antiviral_defense != "") %>% 
+  left_join(SARSCOV2)
+
+write.csv(Antiviral_defense, "results/Antiviral_defense.csv")
+
+RNA_binding <- read.csv("data/uniprot-keyword__RNA-binding.csv") %>%
+  mutate(RNA_binding = str_remove_all(Entry.name, "_HUMAN")) %>% 
+  dplyr::select(RNA_binding) %>% 
+  filter(RNA_binding != "")
+write.csv(RNA_binding, "results/RNA_binding.csv")
+
+cytokine <- read.csv("data/uniprot-keyword__Cytokine.csv") %>%
+  mutate(cytokine = str_remove_all(Entry.name, "_HUMAN")) %>% 
+  dplyr::select(cytokine) %>% 
+  filter(cytokine != "")
+write.csv(cytokine, "results/cytokine.csv")
+
+immunity <- read.csv("data/uniprot-keyword__Immunity_header.csv") %>%
+  mutate(immunity = str_remove_all(Entry.name, "_HUMAN")) %>% 
+  dplyr::select(immunity) %>% 
+  filter(immunity != "")
+write.csv(immunity, "results/immunity.csv")
+
+InfluenzaA.csv
+
+influenza <- read.csv("data/InfluenzaA.csv") %>%
+  separate(ID, c("name", "ID"), sep = '\\(') %>%
+  dplyr::select(ID) %>% 
+  mutate(ID = str_remove( ID, '\\)'))
+
+write.csv(influenza, "results/influenza.csv")
+
+```
+```{r}
+rna <- DE.results.rna.late %>% 
+  dplyr::select(Gene.name, log2FoldChange) %>% 
+  dplyr::rename(RNAseq = log2FoldChange)
+ribo <- DE.results.ribo.late %>%
+  dplyr::select(Gene.name, log2FoldChange) %>% 
+  dplyr::rename(Riboseq = log2FoldChange)
+
+REL <- DE.results.rna.late %>% 
+  filter(Gene.name == "REL")
+
+REL <- DE.results.ribo.late %>% 
+  filter(Gene.name == "REL")
+  
+antiviral_defense <- read.csv("data/Antiviral_defense_GeneSymbol.csv") %>%
+  dplyr::rename(Gene.name = OFFICIAL_GENE_SYMBOL) %>% 
+  left_join(rna, by = "Gene.name") %>% 
+  left_join(ribo, by = "Gene.name") %>% 
+  gather(method, log2FC, -Gene.name) %>%
+  mutate_all(~replace(.,is.na(.), 0))
+
+
+antiviral_defense$method <- factor(antiviral_defense$method, levels = c("RNAseq", "Riboseq"))
+
+antiviral_plot <- ggplot(antiviral_defense, aes(y =Gene.name, x= method, fill= log2FC))+
+  geom_tile(color = "black")+
+  scale_fill_gradient2(low = "blue",mid = "white", high = "red")+
+  theme_minimal()+
+  labs(x="", 
+       y="", 
+       title = "Antiviral defense")
+
+ggsave(
+  filename = "results/antiviral_plot_log2FC.PNG",
+  plot =antiviral_plot,
+  width = 8,
+  height =18.75,
+  units = "cm",
+  dpi = 300,
+  limitsize = TRUE)
+```
+
+
+```{r}
+transcription <- read.csv("data/Transcription_GeneSymbol.csv") %>% 
+  dplyr::rename(Gene.name = OFFICIAL_GENE_SYMBOL) %>% 
+  left_join(rna, by = "Gene.name") %>% 
+  left_join(ribo, by = "Gene.name") %>% 
+  gather(method, log2FC, -Gene.name) %>%
+  mutate_all(~replace(.,is.na(.), 0))
+
+transcription$method <- factor(transcription$method, levels = c("RNAseq", "Riboseq"))
+
+transcription_plot <- ggplot(transcription, aes(y =Gene.name, x= method, fill= log2FC))+
+  geom_tile(color = "black")+
+  scale_fill_gradient2(low = "blue",mid = "white", high = "red")+
+  theme_minimal()+
+  labs(x="", 
+       y="", 
+       title = "Transcription")
+
+ggsave(
+  filename = "results/transcription_plot_log2FC.PNG",
+  plot =transcription_plot,
+  width = 8,
+  height =33,
+  units = "cm",
+  dpi = 300,
+  limitsize = TRUE)
+```
+
+
+```{r}
+cytokine <- read.csv("data/Cytokine_GeneSymbol.csv") %>% 
+  dplyr::rename(Gene.name = OFFICIAL_GENE_SYMBOL) %>% 
+  left_join(rna, by = "Gene.name") %>% 
+  left_join(ribo, by = "Gene.name") %>% 
+  gather(method, log2FC, -Gene.name) %>%
+  mutate_all(~replace(.,is.na(.), 0))
+
+cytokine$method <- factor(cytokine$method, levels = c("RNAseq", "Riboseq"))
+
+cytokine_plot <- ggplot(cytokine, aes(y =Gene.name, x= method, fill= log2FC))+
+  geom_tile(color = "black")+
+  scale_fill_gradient2(low = "blue",mid = "white", high = "red")+
+  theme_minimal()+
+  labs(x="", 
+       y="", 
+       title = "Cytokine")
+
+ggsave(
+  filename = "results/cytokine_plot_log2FC.PNG",
+  plot =cytokine_plot,
+  width = 8,
+  height =8.25,
+  units = "cm",
+  dpi = 300,
+  limitsize = TRUE)
+
+```
+
+```{r}
+
+innate_immunity <- read.csv("data/Innate_immunity_GeneSymbol.csv") %>% 
+  dplyr::rename(Gene.name = ID) %>% 
+  left_join(rna, by = "Gene.name") %>% 
+  left_join(ribo, by = "Gene.name") %>% 
+  gather(method, log2FC, -Gene.name) %>%
+  mutate_all(~replace(.,is.na(.), 0))
+
+innate_immunity$method <- factor(innate_immunity$method, levels = c("RNAseq", "Riboseq"))
+
+innate_immunity_plot <- ggplot(innate_immunity, aes(y =Gene.name, x= method, fill= log2FC))+
+  geom_tile(color = "black")+
+  scale_fill_gradient2(low = "blue",mid = "white", high = "red")+
+  theme_minimal()+
+  labs(x="", 
+       y="", 
+       title = "innate immunity")
+
+ggsave(
+  filename = "results/innate_immunity_plot_log2FC.PNG",
+  plot =innate_immunity_plot,
+  width = 8,
+  height =16.5,
+  units = "cm",
+  dpi = 300,
+  limitsize = TRUE)
+
+```
+
+```{r}
+
+TNF_pathway <- read.csv("data/TNF_pathway_GeneSymbol.csv") %>% 
+  dplyr::rename(Gene.name =Column1) %>% 
+  left_join(rna, by = "Gene.name") %>% 
+  left_join(ribo, by = "Gene.name") %>% 
+  gather(method, log2FC, -Gene.name) %>%
+  mutate_all(~replace(.,is.na(.), 0))
+
+TNF_pathway$method <- factor(TNF_pathway$method, levels = c("RNAseq", "Riboseq"))
+
+TNF_pathway_plot <- ggplot(TNF_pathway, aes(y =Gene.name, x= method, fill= log2FC))+
+  geom_tile(color = "black")+
+  scale_fill_gradient2(low = "blue",mid = "white", high = "red")+
+  theme_minimal()+
+  labs(x="", 
+       y="", 
+       title = "TNF pathway")
+
+ggsave(
+  filename = "results/TNF_pathway_plot_log2FC.PNG",
+  plot =TNF_pathway_plot,
+  width = 8,
+  height =8.25,
+  units = "cm",
+  dpi = 300,
+  limitsize = TRUE)
+
+```
+

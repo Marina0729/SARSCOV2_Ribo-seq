@@ -1,0 +1,97 @@
+---
+title: "Annotation"
+author: "Marina Alexander"
+date: "12/8/2020"
+output:
+  pdf_document: default
+  html_document:
+    code_folding: hide
+---
+
+```{r setup, include=FALSE}
+
+# load libraries
+library(tidyverse)
+library(dplyr)
+library(knitr)
+library(dplyr)
+
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  fig.align = 'center'
+)
+```
+
+
+```{r}
+
+KEYWORDS_SARSCOV2 <- read.csv("data/Uniprot_KEYWORDS.csv", skip = 1) %>% 
+  filter(Term != "DNA-binding", Term != "Nucleus")
+
+KEYWORDS_plot <- ggplot(KEYWORDS_SARSCOV2) + 
+  geom_bar(aes(x = reorder(Term, -PValue), y = Fold.Enrichment, fill = PValue), stat = 'identity') +
+  coord_flip() +
+  scale_fill_viridis_c(direction = -1) +
+  theme_set(theme_classic(base_size = 8)) +
+  theme(legend.key.size = unit(0.3, "cm"))+
+  labs(y = "Fold enrichment",
+       x = "Uniprot Keyword",
+       fill = "PValue")
+
+ggsave(
+  filename = "results/KEYWORDS_plot.PNG",
+  plot = KEYWORDS_plot,
+  device = NULL,
+  path = NULL,
+  scale = 1,
+  width = 9,
+  height =6,
+  units = "cm",
+  dpi = 300,
+  limitsize = TRUE)
+
+```
+
+
+```{r}
+KEGG_SARSCOV2 <- read.csv("data/KEGG_pathways.csv", skip = 1) %>%
+  filter(Term != "Chagas disease (American trypanosomiasis)", Term != "Rheumatoid arthritis" )
+
+KEGG_plot <- ggplot(KEGG_SARSCOV2) + 
+  geom_bar(aes(x = reorder(Term, -PValue), y = Fold.Enrichment, fill = PValue), stat = 'identity') +
+  coord_flip() +
+  scale_fill_viridis_c(direction = -1) +
+  theme(legend.key.size = unit(0.3, "cm"))+
+  labs(y = "Fold enrichment",
+       x = "KEGG pathway",
+       fill = "PValue")
+
+ggsave(
+  filename = "results/KEGG_plot.PNG",
+  plot = KEGG_plot,
+  device = NULL,
+  path = NULL,
+  scale = 1,
+  width = 16,
+  height = 8,
+  units = "cm",
+  dpi = 300,
+  limitsize = TRUE)
+
+
+```
+
+```{r}
+
+Influenza <- read.csv("data/Influenza_KEGG.csv") %>% 
+  separate(DAVID.Gene.Name, c("description", "Gene.ID"), sep = "[(]") %>%
+  dplyr::select(Gene.ID) %>% 
+  mutate(Gene.ID = str_remove(Gene.ID, "[)\xaO]"))
+
+write.csv(Influenza, "results/Influenza_KEGG_list.csv")
+
+
+```
+

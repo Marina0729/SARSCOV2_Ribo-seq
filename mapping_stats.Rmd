@@ -1,0 +1,112 @@
+---
+title: "Percent_mapping"
+author: "Marina Alexander"
+date: "12/9/2020"
+output:
+  pdf_document: default
+  html_document:
+    code_folding: hide
+---
+
+```{r setup, include=FALSE}
+
+# load libraries
+library(tidyverse)
+library(dplyr)
+library(knitr)
+library(dplyr)
+
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  fig.align = 'center'
+)
+```
+
+```{r}
+RNA_species_percent <- read.csv("data/RNA_species_percent_mapped.csv") %>% 
+  gather(species, percent_mapped, -sample, -condition) %>% 
+  mutate(condition = str_replace(condition, "infect24h", "24h SARS-CoV-2 infection"))
+
+RNA_species_stats <- RNA_species_percent  %>% 
+  group_by(condition, species) %>% 
+  summarise(mean = mean(percent_mapped), sd = sd(percent_mapped)) %>% 
+  mutate(upper = mean + sd) %>% 
+  mutate(lower = mean - sd)
+
+RNA_species_stats$condition <- factor(RNA_species_stats$condition, levels = c("mock","24h SARS-CoV-2 infection"))
+
+
+species_plot <- ggplot(RNA_species_stats, aes(x= species, y=mean))+
+  geom_bar(stat = "Identity", color = "black", fill = "grey")+
+  geom_errorbar(aes(ymin = lower, ymax = upper), width =0.2)+
+  theme_set(theme_classic(base_size = 8)) +
+  facet_wrap(~condition, nrow = 2)+
+  ylim(0, 100)+
+  labs(y = "Percent mapped footprint reads", 
+       x = "")
+
+
+ggsave(
+  filename = "results/species_plot.PNG",
+  plot = species_plot,
+  device = NULL,
+  path = NULL,
+  scale = 1,
+  width = 9,
+  height =11,
+  units = "cm",
+  dpi = 300,
+  limitsize = TRUE)
+```
+
+
+```{r}
+features <- read.csv("data/percent_mapping_feat.csv") %>% 
+  dplyr::rename(condition = X, fiveUTR = X5UTR, threeUTR = X3UTR ) %>% 
+  gather(feature, percent_mapped, -sample, -condition) %>% 
+  filter(feature != "UTR") %>% 
+  mutate(condition = str_replace(condition, "infected24h", "24h SARS-CoV-2 infection")) %>% 
+  mutate(feature = str_replace(feature, "CDS", "coding sequence")) %>% 
+  mutate(feature = str_replace(feature, "fiveUTR", "5'UTR")) %>% 
+  mutate(feature = str_replace(feature, "threeUTR", "3'UTR")) %>% 
+  mutate(feature = str_replace(feature, "start_codon", "start codon")) %>% 
+  mutate(feature = str_replace(feature, "stop_codon", "stop codon"))
+  
+
+features_stats <- features  %>% 
+  group_by(condition, feature) %>% 
+  summarise(mean = mean(percent_mapped), sd = sd(percent_mapped)) %>% 
+  mutate(upper = mean + sd) %>% 
+  mutate(lower = mean - sd)
+
+features_stats$condition <- factor(features_stats$condition, levels = c("mock","24h SARS-CoV-2 infection"))
+
+
+features_plot <- ggplot(features_stats, aes(x= feature, y=mean))+
+  geom_bar(stat = "Identity", color = "black", fill = "grey")+
+  geom_errorbar(aes(ymin = lower, ymax = upper), width =0.2)+
+  theme_set(theme_classic(base_size = 8)) +
+  facet_wrap(~condition, nrow = 2)+
+  ylim(0,100)+
+  labs(y = "Percent mapped footprint reads", 
+       x = "")
+
+
+ggsave(
+  filename = "results/features_plot.PNG",
+  plot = features_plot,
+  device = NULL,
+  path = NULL,
+  scale = 1,
+  width = 9,
+  height =11,
+  units = "cm",
+  dpi = 300,
+  limitsize = TRUE)
+
+```
+
+
+```{r}

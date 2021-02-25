@@ -1,0 +1,250 @@
+---
+title: "DESEq2 of mRNA counts"
+author: "Marina Alexander"
+date: "30/10/2020"
+output:
+  pdf_document: default
+  html_document:
+    code_folding: hide
+---
+
+```{r setup, include=FALSE}
+
+# load libraries
+library(tidyverse)
+library(dplyr)
+library(knitr)
+library(dplyr)
+library(DESeq2)
+
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  fig.align = 'center'
+)
+```
+
+```{r }
+#read in the count and metadata tables
+counts_rna.host.6h<- read.csv("data/rna.host.6h.csv", row.names=1, header = TRUE)
+counts_rna.host.24h<- read.csv("data/rna.host.24h.csv", row.names=1, header = TRUE)
+counts_rna.virus<- read.csv("data/rna.virus.csv",row.names=1, header = TRUE)
+
+meta_rna.host.6h <- read.csv("data/host.early.metadata.csv", row.names=1, header = TRUE)
+meta_rna.host.24h <- read.csv("data/host.late.metadata.csv",row.names=1, header = TRUE)
+meta_rna.virus <- read.csv("data/virus.metadata.csv",row.names=1, header = TRUE)
+
+```
+
+
+```{r }
+#check dimensions of count and metadata file
+all(rownames(meta_rna.host.6h) == colnames (counts_rna.host.6h))
+all(rownames(meta_rna.host.24h) == colnames (counts_rna.host.24h))
+all(rownames(meta_rna.virus) == colnames (counts_rna.virus))
+```
+
+
+```{r }
+# Calculate counts per million.
+# Filter rows: at least 3 samples must have at least 1 cpm.
+# Retain rows according to 'keep' and nothing on columns.
+cpm.early <- apply(counts_rna.host.6h, 2, function(x) (x/sum(x))*1000000)
+keep.early <- rowSums( cpm.early >= 1 ) >=3
+filtered.early <- counts_rna.host.6h[ keep.early, ]
+dim(filtered.early)
+
+cpm.late <- apply(counts_rna.host.24h, 2, function(x) (x/sum(x))*1000000)
+keep.late <- rowSums( cpm.late >= 1 ) >=3
+filtered.late <- counts_rna.host.24h[ keep.late, ]
+dim(filtered.late)
+
+cpm.virus <- apply(counts_rna.virus, 2, function(x) (x/sum(x))*1000000)
+keep.virus <- rowSums( cpm.virus >= 1 ) >=3
+filtered.virus <- counts_rna.virus[ keep.virus, ]
+dim(filtered.virus)
+
+```
+
+
+```{r }
+# Construct a SummarizedExperiment object:
+dds_early <- DESeqDataSetFromMatrix(
+  countData = filtered.early,
+  colData = meta_rna.host.6h,
+  design = ~ condition) # ~ is representative of 'by', i.e. compare by condition
+
+dds_late <- DESeqDataSetFromMatrix(
+  countData = filtered.late,
+  colData = meta_rna.host.24h,
+  design = ~ condition) # ~ is representative of 'by', i.e. compare by condition
+
+dds_virus <- DESeqDataSetFromMatrix(
+  countData = filtered.virus,
+  colData = meta_rna.virus,
+  design = ~ condition) # ~ is representative of 'by', i.e. compare by condition
+
+```
+
+
+```{r }
+# Perform DE testing:
+dds_early <- DESeq(dds_early)
+dds_late <- DESeq(dds_late)
+dds_virus <- DESeq(dds_virus)
+```
+
+
+```{r }
+# Output normalized counts:
+norm.counts_early <- counts (dds_early, normalized=TRUE)
+write.csv(norm.counts_early, file="results/DESeq2_norm.counts_early.csv")
+norm.counts_late <- counts (dds_late, normalized=TRUE)
+write.csv(norm.counts_late, file="results/DESeq2_norm.counts_late.csv")
+norm.counts_virus <- counts (dds_virus, normalized=TRUE)
+write.csv(norm.counts_virus, file="results/DESeq2_norm.counts_virus.csv")
+```
+
+```{r}
+#expaning the gene information 
+gene_name <- read.delim("data/Geneid_name_GO.txt") %>% 
+  dplyr::rename(Geneid = Gene.stable.ID.version) %>%
+  dplyr::select(Geneid, Gene.name) %>% 
+  unique()
+
+#adding immune genes 
+immune_genes <- read.csv("data/InnateDB_genes.csv") %>% 
+  filter(species == "Homo sapiens") %>% 
+  dplyr::rename(Geneid = ensembl) %>% 
+  dplyr::select(Geneid, name, function.) %>% 
+  dplyr::rename(Gene.name = name)
+
+
+```
+
+```{r }
+
+# Convert results to dataframe:
+DE.res_early <- results(dds_early, contrast = c("condition", "infect6h", "mock")) %>% 
+  as_tibble(rownames = "Geneid") %>%
+  arrange(padj) %>% 
+  left_join(gene_name, by = "Geneid")
+
+significant_rna.early <- DE.res_early %>% 
+  filter(log2FoldChange <(-1)| log2FoldChange >(1)) %>% 
+  filter(padj <0.05) %>% 
+  dplyr::select(Gene.name, log2FoldChange, padj)
+write.csv(significant_rna.early, "results/signif_rna.early.csv")
+  
+DE.res_late.rna <- results(dds_late, contrast = c("condition", "infect24h", "mock")) %>% 
+  as_tibble(rownames = "Geneid") %>%
+  arrange(padj) %>% 
+  left_join(gene_name, by = "Geneid") %>% 
+  mutate(Diff_expn = case_when(log2FoldChange >1& padj <0.05 ~"up", log2FoldChange <(-1)& padj <0.05~"down"))
+write.csv(DE.res_late.rna, "results/DE.results_rna.late.csv")
+
+DE.res_late.rna %>%
+  filter(Gene.name == "BACH2")
+
+significant_rna.late <- DE.res_late.rna %>% 
+  filter(log2FoldChange <(-1)| log2FoldChange >(1)) %>% 
+  filter(padj <0.05) %>% 
+  dplyr::select(Gene.name, log2FoldChange, padj) %>% 
+  arrange(log2FoldChange)
+write.csv(significant_rna.late, "results/signif_rna.late.csv")
+
+count_up_down.late <- DE.res_late.rna %>% 
+  group_by(Diff_expn) %>%
+  tally()
+
+ISGs.late <- read.csv("data/ISG_late.csv")
+  
+DE.res_virus <- results(dds_virus, contrast = c("condition", "infect24h", "infect6h")) %>% 
+  as_data_frame() %>%
+  rownames_to_column("Geneid") %>% 
+  left_join(gene_name, by = "Geneid") %>% 
+  arrange(padj)
+
+```
+
+```{r}
+
+#making volcano plots
+plot_volcano_rna.late <- ggplot(data=DE.res_late.rna, 
+                                aes(x=log2FoldChange, 
+                                    y=-log10(padj),col=Diff_expn)) +
+  xlim(-2.5, 7.7)+
+  geom_point(alpha = 0.4, size = 1.5) +
+  geom_vline(xintercept=c(-1, 1), col="black", linetype = "dashed") +
+  geom_hline(yintercept=-log10(0.05), col="black", linetype = "dashed") +
+  geom_text(data = significant_rna.late, aes(x =log2FoldChange , y = -log10(padj), label = Gene.name), 
+            hjust = 0.5, vjust = -0.5, size = 1.75, check_overlap = TRUE, color = "black") +
+  annotate("text", x= c(-2,0, 4.5), y= c(50,50,50), label = c("n=63","n=11275","n=166"), 
+           color = "black", size = 3)+
+  labs(y="-log10 adjusted p-value", x="log2 fold change")+
+  theme_set(theme_classic(base_size = 10))+
+  theme(legend.position = "none")
+
+ggsave(filename = "results/plot_volcano_transcripts.png", plot = plot_volcano_rna.late, width = 20, height = 11, dpi = 600, units = "cm")
+
+
+```
+
+```{r}
+
+
+
+```
+
+
+
+```{r}
+
+#plotting the translation and transcription log2FoldChange 
+
+translate_transcribe.early <- host.mock.infect6h %>% 
+  dplyr::rename(log2FoldChange.t = log2FoldChange, padj.t = padj) %>% 
+  dplyr::select (Gene.name,log2FoldChange.t, padj.t ) %>% 
+  left_join(DE.res_early, by = "Gene.name") %>% 
+  dplyr::select(Gene.name,log2FoldChange.t, padj.t, log2FoldChange, padj) %>% 
+  dplyr::rename( log2FoldChange.r = log2FoldChange, padj.r= padj )
+
+highlight_signif.early <- translate_transcribe.early %>% 
+  filter(padj.t <0.01) %>%
+  filter(log2FoldChange.t>1|log2FoldChange.t<(-1)) %>% 
+  mutate(diff_direction=log2FoldChange.r/log2FoldChange.t) %>% 
+  filter(diff_direction <0.2 ) %>%
+  arrange(diff_direction)
+
+
+plot_translate_transcribe.early <- ggplot(translate_transcribe.early, aes(x = log2FoldChange.r, y = log2FoldChange.t))+
+  geom_point(alpha = 0.2)+
+  geom_hline(yintercept=0, color = "blue", linetype = "dashed")+
+  geom_vline(xintercept=0, color = "blue", linetype = "dashed")+
+  geom_text(data = highlight_signif.early, aes(x = log2FoldChange.r, y = log2FoldChange.t, label = Gene.name),hjust = 0.5, vjust = -0.5, size = 2, color = "red")
+
+translate_transcribe.late <- host.mock.infect24h %>% 
+  dplyr::rename( log2FoldChange.t = log2FoldChange, padj.t = padj) %>% 
+  dplyr::select (Gene.name,log2FoldChange.t, padj.t ) %>% 
+  left_join(DE.res_late, by = "Gene.name") %>% 
+  dplyr::select(Gene.name,log2FoldChange.t, padj.t, log2FoldChange, padj) %>% 
+  dplyr::rename( log2FoldChange.r = log2FoldChange, padj.r= padj )
+
+highlight_signif.late <- translate_transcribe.late %>% 
+  filter(padj.t <0.01) %>%
+  filter(log2FoldChange.t>1|log2FoldChange.t<(-1)) %>% 
+  mutate(diff_direction=log2FoldChange.r/log2FoldChange.t) %>% 
+  filter(diff_direction <0.5 ) %>%
+  arrange(diff_direction)
+
+plot_translate_transcribe.late <- ggplot(translate_transcribe.late, aes(x = log2FoldChange.r, y = log2FoldChange.t))+
+  geom_point(alpha = 0.2)+
+  geom_hline(yintercept=0, color = "blue", linetype = "dashed")+
+  geom_vline(xintercept=0, color = "blue", linetype = "dashed")
+
+
+```
+
+
+

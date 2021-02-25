@@ -1,0 +1,314 @@
+---
+title: "Riborex_Pipeline"
+author: "Marina Alexander"
+date: "27/10/2020"
+output:
+  pdf_document: default
+  html_document:
+    code_folding: hide
+---
+
+```{r setup, include=FALSE}
+
+# load libraries
+library(tidyverse)
+library(dplyr)
+library(knitr)
+library(riborex)
+library(cowplot)
+
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  fig.align = 'center'
+)
+```
+
+```{r}
+
+#making a ribosome counts table 
+s1.CDS.r <- read.delim("data/sRNA_01_R1_virus_host_FeatureCount_CDS.txt", skip = 1) %>% 
+  dplyr::rename(s1.r = X.scratch1.ale097.shutoff.mapping.virus_host.sRNA_01_R1_cdna_mappedAligned.out.sam) %>% 
+  dplyr::select(Geneid, s1.r)
+s2.CDS.r <- read.delim("data/sRNA_02_R1_virus_host_FeatureCount_CDS.txt", skip = 1) %>% 
+  dplyr::rename(s2.r = X.scratch1.ale097.shutoff.mapping.virus_host.sRNA_02_R1_cdna_mappedAligned.out.sam) %>% 
+  dplyr::select(s2.r)
+s3.CDS.r <- read.delim("data/sRNA_03_R1_virus_host_FeatureCount_CDS.txt", skip = 1) %>% 
+  dplyr::rename(s3.r = X.scratch1.ale097.shutoff.mapping.virus_host.sRNA_03_R1_cdna_mappedAligned.out.sam) %>% 
+  dplyr::select(s3.r)
+s4.CDS.r <- read.delim("data/sRNA_04_R1_virus_host_FeatureCount_CDS.txt", skip = 1) %>% 
+  dplyr::rename(s4.r = X.scratch1.ale097.shutoff.mapping.virus_host.sRNA_04_R1_cdna_mappedAligned.out.sam) %>% 
+  dplyr::select(s4.r)
+s5.CDS.r <- read.delim("data/sRNA_05_R1_virus_host_FeatureCount_CDS.txt", skip = 1) %>% 
+  dplyr::rename(s5.r = X.scratch1.ale097.shutoff.mapping.virus_host.sRNA_05_R1_cdna_mappedAligned.out.sam) %>% 
+  dplyr::select(s5.r)
+s6.CDS.r <- read.delim("data/sRNA_06_R1_virus_host_FeatureCount_CDS.txt", skip = 1) %>% 
+  dplyr::rename(s6.r = X.scratch1.ale097.shutoff.mapping.virus_host.sRNA_06_R1_cdna_mappedAligned.out.sam) %>% 
+  dplyr::select(s6.r)
+s7.CDS.r <- read.delim("data/sRNA_07_R1_virus_host_FeatureCount_CDS.txt", skip = 1) %>% 
+  dplyr::rename(s7.r = X.scratch1.ale097.shutoff.mapping.virus_host.sRNA_07_R1_cdna_mappedAligned.out.sam) %>% 
+  dplyr::select(s7.r)
+s8.CDS.r <- read.delim("data/sRNA_08_R1_virus_host_FeatureCount_CDS.txt", skip = 1) %>% 
+  dplyr::rename(s8.r = X.scratch1.ale097.shutoff.mapping.virus_host.sRNA_08_R1_cdna_mappedAligned.out.sam) %>% 
+  dplyr::select(s8.r)
+s9.CDS.r <- read.delim("data/sRNA_09_R1_virus_host_FeatureCount_CDS.txt", skip = 1) %>% 
+  dplyr::rename(s9.r = X.scratch1.ale097.shutoff.mapping.virus_host.sRNA_09_R1_cdna_mappedAligned.out.sam) %>% 
+  dplyr::select(s9.r)
+
+#subsetting the data for analysis
+ribo.host.6h <- bind_cols(s1.CDS.r,s2.CDS.r, s3.CDS.r, s4.CDS.r, s5.CDS.r, s6.CDS.r) %>%
+  filter(str_detect(Geneid, "ENSG")) %>% 
+  column_to_rownames("Geneid")
+write.csv(ribo.host.6h, "data/ribo.host.6h.csv")
+ribo.host.24h <- bind_cols(s1.CDS.r,s2.CDS.r, s3.CDS.r, s7.CDS.r, s8.CDS.r, s9.CDS.r) %>%
+  filter(str_detect(Geneid, "ENSG")) %>% 
+  column_to_rownames("Geneid") 
+write.csv(ribo.host.24h, "data/ribo.host.24h.csv")
+ribo.virus <- bind_cols(s1.CDS.r, s4.CDS.r,s5.CDS.r, s6.CDS.r, s7.CDS.r, s8.CDS.r, s9.CDS.r) %>%
+  dplyr::select(-s1.r) %>% 
+  column_to_rownames("Geneid")
+write.csv(ribo.virus, "data/ribo.virus.csv")
+```
+
+```{r}
+#making a mRNA counts table 
+s1.CDS.m <- read.delim("data/mRNA_01_R1_virus_host_FeatureCount_CDS.txt", skip = 1) %>% 
+  dplyr::rename(s1.m = X.scratch1.ale097.shutoff.mapping.virus_host_mRNA.mRNA_01_mappedAligned.out.sam) %>% 
+  dplyr::select(Geneid, s1.m)
+s2.CDS.m <- read.delim("data/mRNA_02_R1_virus_host_FeatureCount_CDS.txt", skip = 1) %>% 
+  dplyr::rename(s2.m = X.scratch1.ale097.shutoff.mapping.virus_host_mRNA.mRNA_02_mappedAligned.out.sam) %>% 
+  dplyr::select(s2.m)
+s3.CDS.m <- read.delim("data/mRNA_03_R1_virus_host_FeatureCount_CDS.txt", skip = 1) %>% 
+  dplyr::rename(s3.m = X.scratch1.ale097.shutoff.mapping.virus_host_mRNA.mRNA_03_mappedAligned.out.sam) %>% 
+  dplyr::select(s3.m)
+s4.CDS.m <- read.delim("data/mRNA_04_R1_virus_host_FeatureCount_CDS.txt", skip = 1) %>% 
+  dplyr::rename(s4.m = X.scratch1.ale097.shutoff.mapping.virus_host_mRNA.mRNA_04_mappedAligned.out.sam) %>% 
+  dplyr::select(s4.m)
+s5.CDS.m <- read.delim("data/mRNA_05_R1_virus_host_FeatureCount_CDS.txt", skip = 1) %>% 
+  dplyr::rename(s5.m = X.scratch1.ale097.shutoff.mapping.virus_host_mRNA.mRNA_05_mappedAligned.out.sam) %>% 
+  dplyr::select(s5.m)
+s6.CDS.m <- read.delim("data/mRNA_06_R1_virus_host_FeatureCount_CDS.txt", skip = 1) %>% 
+  dplyr::rename(s6.m = X.scratch1.ale097.shutoff.mapping.virus_host_mRNA.mRNA_06_mappedAligned.out.sam) %>% 
+  dplyr::select(s6.m)
+s7.CDS.m <- read.delim("data/mRNA_07_R1_virus_host_FeatureCount_CDS.txt", skip = 1) %>% 
+  dplyr::rename(s7.m = X.scratch1.ale097.shutoff.mapping.virus_host_mRNA.mRNA_07_mappedAligned.out.sam) %>% 
+  dplyr::select(s7.m)
+s8.CDS.m <- read.delim("data/mRNA_08_R1_virus_host_FeatureCount_CDS.txt", skip = 1) %>% 
+  dplyr::rename(s8.m = X.scratch1.ale097.shutoff.mapping.virus_host_mRNA.mRNA_08_mappedAligned.out.sam) %>% 
+  dplyr::select(s8.m)
+s9.CDS.m <- read.delim("data/mRNA_09_R1_virus_host_FeatureCount_CDS.txt", skip = 1) %>% 
+  dplyr::rename(s9.m = X.scratch1.ale097.shutoff.mapping.virus_host_mRNA.mRNA_09_mappedAligned.out.sam) %>% 
+  dplyr::select(s9.m)
+
+#subsetting the data for analysis 
+rna.host.6h <- bind_cols(s1.CDS.m,s2.CDS.m, s3.CDS.m, s4.CDS.m, s5.CDS.m, s6.CDS.m) %>%
+  filter(str_detect(Geneid, "ENSG")) %>% 
+  column_to_rownames("Geneid")
+write.csv(rna.host.6h, "data/rna.host.6h.csv")
+rna.host.24h <- bind_cols(s1.CDS.m,s2.CDS.m, s3.CDS.m, s7.CDS.m, s8.CDS.m, s9.CDS.m) %>% 
+  filter(str_detect(Geneid, "ENSG")) %>% 
+  column_to_rownames("Geneid")
+write.csv(rna.host.24h, "data/rna.host.24h.csv")
+rna.virus <- bind_cols(s1.CDS.m, s4.CDS.m,s5.CDS.m, s6.CDS.m, s7.CDS.m, s8.CDS.m, s9.CDS.m) %>%
+  dplyr::select(-s1.m) %>% 
+  column_to_rownames("Geneid")
+write.csv(rna.virus, "data/rna.virus.csv")
+```
+
+
+
+```{r}
+
+rnaCond.host6h <- c("mock", "mock", "mock", "infect6h","infect6h", "infect6h")
+riboCond.host6h <- c("mock", "mock", "mock", "infect6h","infect6h", "infect6h" )
+rnaCond.host24h <- c("mock", "mock", "mock", "infect24h","infect24h", "infect24h" )
+riboCond.host24h <- c("mock", "mock", "mock", "infect24h","infect24h", "infect24h" )
+rnaCond.virus <- c("infect6h", "infect6h", "infect6h", "infect24h","infect24h", "infect24h")
+riboCond.virus <- c("infect6h", "infect6h", "infect6h","infect24h","infect24h", "infect24h")
+
+# rnaCond.host6h <- c("infect6h","infect6h", "infect6h", "mock", "mock", "mock")
+# riboCond.host6h <- c("infect6h","infect6h", "infect6h", "mock", "mock", "mock" )
+# rnaCond.host24h <- c("infect24h","infect24h", "infect24h" ,"mock", "mock", "mock" )
+# riboCond.host24h <- c("mock", "mock", "mock", "infect24h","infect24h", "infect24h" )
+# rnaCond.virus <- c("infect6h", "infect6h", "infect6h", "infect24h","infect24h", "infect24h")
+# riboCond.virus <- c("infect6h", "infect6h", "infect6h","infect24h","infect24h", "infect24h")
+
+```
+
+```{r}
+#riborex differential expression analysis
+host.early.deseq2 <- riborex(rna.host.6h, ribo.host.6h, rnaCond.host6h, riboCond.host6h)
+host.late.deseq2 <- riborex(rna.host.24h, ribo.host.24h, rnaCond.host24h, riboCond.host24h)
+virus.deseq2 <- riborex(rna.virus, ribo.virus, rnaCond.virus, riboCond.virus)
+
+#summarise the results
+summary(host.early.deseq2)
+summary(host.late.deseq2)
+summary(virus.deseq2)
+
+#number of significant genes 
+length(which(host.early.deseq2$padj < 0.05))
+length(which(host.late.deseq2$padj < 0.05))
+length(which(virus.deseq2$padj < 0.05))
+
+#plot the dispersion
+DESeq2::plotMA(host.early.deseq2)
+DESeq2::plotMA(host.late.deseq2)
+DESeq2::plotMA(virus.deseq2)
+```
+
+```{r}
+#expaning the gene information 
+gene_name <- read.delim("data/Geneid_name_GO.txt") %>% 
+  dplyr::rename(Geneid = Gene.stable.ID.version) %>%
+  dplyr::select(Geneid, Gene.name) %>% 
+  unique()
+
+# gene_GO <- read.delim("data/Geneid_name_GO.txt") %>% 
+#   dplyr::rename(Geneid = Gene.stable.ID.version) %>% 
+#   dplyr::select(Geneid,GO.term.name ) %>%
+#   spread(Geneid, GO.term.name)
+```
+
+```{r}
+#make data frames for plotting
+host.mock.infect6h <- host.early.deseq2 %>%
+  as.data.frame() %>%
+  rownames_to_column("Geneid") %>%
+  arrange(padj) %>% 
+  left_join(gene_name, by = "Geneid")
+host.mock.infect24h <- host.late.deseq2 %>%
+  as.data.frame() %>%
+  rownames_to_column("Geneid") %>%
+  arrange(padj) %>% 
+  left_join(gene_name, by = "Geneid")
+virus.infect6h.infect24h <- virus.deseq2 %>%
+  as.data.frame() %>%
+  rownames_to_column("Geneid") %>%
+  arrange(padj) %>% 
+  left_join(gene_name, by = "Geneid")
+
+write.csv(host.mock.infect6h, "results/host.mock_infect6h_deseq2.csv")
+write.csv(host.mock.infect24h, "results/host.mock_infect24h_deseq2.csv")
+write.csv(virus.infect6h.infect24h, "results/virus_deseq2.csv")
+
+```
+
+
+
+
+```{r}
+#making a tibble
+host.mock.infect6h_tibble <- read.csv("results/host.mock_infect6h_deseq2.csv") %>% 
+  dplyr::select(-X) %>%
+  filter(str_detect(Geneid, "ENSG")) %>% 
+  mutate(DE = case_when(log2FoldChange >1& padj <0.01 | log2FoldChange <(-1) & padj <0.01 ~"DE",TRUE ~"non DE")) %>%
+  mutate(FC = 2^(log2FoldChange)) %>%
+  left_join(gene_name, by = "Geneid")
+
+host.mock.infect24h_tibble <- read.csv("results/host.mock_infect24h_deseq2.csv") %>% 
+  dplyr::select(-X) %>%
+  filter(str_detect(Geneid, "ENSG")) %>% 
+  mutate(DE = case_when(log2FoldChange >1& padj <0.01 | log2FoldChange <(-1) & padj <0.01 ~"DE",TRUE ~"non DE")) %>%
+  mutate(FC = 2^(log2FoldChange)) %>%
+  left_join(gene_name, by = "Geneid") %>% 
+  arrange(log2FoldChange)
+
+virus_tibble <- read.csv("results/virus_deseq2.csv") %>% 
+  dplyr::select(-X) %>%
+  filter(!str_detect(Geneid, "ENSG")) %>% 
+  mutate(DE = case_when(log2FoldChange >1& padj <0.01 | log2FoldChange <(-1) & padj <0.01 ~"DE",TRUE ~"non DE")) %>%
+  mutate(FC = 2^(log2FoldChange))
+
+
+```
+
+
+```{r}
+#stats on number of up and down genes
+mock.infect6h_stats <- host.mock.infect6h_tibble %>%
+  mutate(direction = case_when(log2FoldChange <(-1)& padj <0.01~"down", log2FoldChange >1& padj <0.01~"up")) %>% 
+  group_by(direction) %>%
+  tally() %>% 
+  filter(direction != "NA")
+
+mock.infect24h_stats <- host.mock.infect24h_tibble %>%
+  mutate(direction = case_when(log2FoldChange <(-1)& padj <0.01~"down", log2FoldChange >1& padj <0.01~"up")) %>% 
+  group_by(direction) %>%
+  tally() %>% 
+  filter(direction != "NA")
+
+
+```
+
+
+```{r}
+#highlight genes for plotting  
+highlight_infect6h <- host.mock.infect6h_tibble %>%
+  filter(DE == "DE") %>% 
+  filter(log2FoldChange>(1.0)|log2FoldChange<(-1.0))
+
+riborex_infect24h <- host.mock.infect24h_tibble %>% 
+  filter(DE == "DE") %>% 
+  filter(log2FoldChange>(1.0)|log2FoldChange<(-1.0)) %>% 
+  dplyr::select(Gene.name.y, log2FoldChange, padj) %>% 
+  arrange(log2FoldChange) %>% 
+  mutate(log2FoldChange = log2FoldChange*-1)
+
+riborex_infect24h_all <- host.mock.infect24h_tibble %>% 
+  dplyr::select(Gene.name.y, log2FoldChange, padj) %>% 
+  arrange(desc(padj)) %>%
+  filter(padj!="NA") %>%
+  mutate(log2FoldChange = log2FoldChange*-1)
+
+write.csv(riborex_infect24h, "results/riborex_infect24h.csv")
+write.csv(riborex_infect24h_all, "results/riborex_infect24h_all.csv")
+
+```
+
+
+```{r}
+#making volcano plots
+plot_volcano_mock.infect6h <- ggplot(data=host.mock.infect6h_tibble, aes(x=log2FoldChange, 
+                                                                    y=-log10(padj),col=DE)) +
+  geom_point(alpha = 0.4, size = 2) +
+  xlim(-6, 6) +
+  ylim(-1, 28) +
+  theme_minimal() +
+  geom_vline(xintercept=c(-1, 1), col="black", linetype = "dashed") +
+  geom_hline(yintercept=-log10(0.01), col="black", linetype = "dashed") +
+  geom_text(data = highlight_infect6h, aes(x =log2FoldChange , y = -log10(padj), label = Gene.name.x), 
+            hjust = 0.5, vjust = -0.5, size = 3, check_overlap=TRUE, color = "black") +
+  annotate("text", x= c(-4.5,4.5), y= c(20,20), label = c("n=48", "n=96"), color = "red")+
+  labs(y="-log10 adjusted p-value", x="log2FoldChange") +
+  labs(title = "Differential translation \n infected 6hr versus mock",
+       caption = "log2Foldchange cut off = 1 \n adjusted p-value cut off = 0.01") +
+  theme(legend.position = "none", plot.title = element_text(hjust = 0.5, face = "bold", size = 12))
+
+plot_volcano_mock.infect24h <- ggplot(data=host.mock.infect24h_tibble, aes(x=log2FoldChange, y=-log10(padj),col=DE)) +
+  geom_point(alpha = 0.4, size = 2) +
+  xlim(-6, 6) +
+  ylim(-1, 28) +
+  theme_minimal() +
+  geom_vline(xintercept=c(-1, 1), col="black", linetype = "dashed") +
+  geom_hline(yintercept=-log10(0.01), col="black", linetype = "dashed") +
+  geom_text(data = highlight_infect24h, aes(x =log2FoldChange , y = -log10(padj), label = Gene.name.y), 
+            hjust = 0.5, vjust = -0.5, size = 3, check_overlap=TRUE, color = "black") +
+  annotate("text", x= c(-4.5,4.5), y= c(20,20), label = c("n=101", "n=21"), color = "red")+
+  labs(y="-log10 adjusted p-value", x="log2FoldChange") +
+  labs(title = "Differential translation \n infected 24hr versus mock", 
+       caption = "log2Foldchange cut off = 1 \n adjusted p-value cut off = 0.01") +
+  theme(legend.position = "none", plot.title = element_text(hjust = 0.5, face = "bold", size = 12))
+ 
+ggsave(filename = "results/plot_volcano_Riborex_mock.infect6h.png", plot = plot_volcano_mock.infect6h, width = 15, height = 15, dpi = 600, units = "cm")
+
+ggsave(filename = "results/plot_volcano_Riborex_mock.infect24h.png", plot = plot_volcano_mock.infect24h, width = 15, height = 15, dpi = 600, units = "cm")
+
+```
+
+
+```{r}
+
+```
+

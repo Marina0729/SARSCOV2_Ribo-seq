@@ -1,0 +1,2466 @@
+---
+title: "Coverage"
+author: "Marina Alexander"
+date: "06/11/2020"
+output:
+  pdf_document: default
+  html_document:
+    code_folding: hide
+---
+
+```{r setup, include=FALSE}
+
+# load libraries
+library(tidyverse)
+library(dplyr)
+library(knitr)
+library(dplyr)
+library(cowplot)
+
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  fig.align = 'center'
+)
+```
+
+
+```{r }
+
+#JUN
+
+s01_JUN.r <- read.delim("data/genes/JUN_filtered_sRNA_01_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "JUN") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s01") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 978 & position < 1973 ~ "CDS", TRUE ~"UTR"))
+
+s02_JUN.r <- read.delim("data/genes/JUN_filtered_sRNA_02_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "JUN") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s02") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 978 & position < 1973 ~ "CDS", TRUE ~"UTR"))
+
+s03_JUN.r <- read.delim("data/genes/JUN_filtered_sRNA_03_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "JUN") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s03") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 978 & position < 1973 ~ "CDS", TRUE ~"UTR"))
+
+s07_JUN.r <- read.delim("data/genes/JUN_filtered_sRNA_07_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "JUN") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s07") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 978 & position < 1973 ~ "CDS", TRUE ~"UTR"))
+
+s08_JUN.r <- read.delim("data/genes/JUN_filtered_sRNA_08_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "JUN") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s08") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 978 & position < 1973 ~ "CDS", TRUE ~"UTR"))
+
+s09_JUN.r <- read.delim("data/genes/JUN_filtered_sRNA_09_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "JUN") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s09") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 978 & position < 1973 ~ "CDS", TRUE ~"UTR"))
+###########################################################################################
+s01_JUN.m <- read.delim("data/genes/JUN_filtered_mRNA_01_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "JUN") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s01") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 978 & position < 1973 ~ "CDS", TRUE ~"UTR"))
+
+s02_JUN.m <- read.delim("data/genes/JUN_filtered_mRNA_02_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "JUN") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s02") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 978 & position < 1973 ~ "CDS", TRUE ~"UTR"))
+
+s03_JUN.m <- read.delim("data/genes/JUN_filtered_mRNA_03_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "JUN") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s03") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 978 & position < 1973 ~ "CDS", TRUE ~"UTR"))
+
+s07_JUN.m <- read.delim("data/genes/JUN_filtered_mRNA_07_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "JUN") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s07") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 978 & position < 1973 ~ "CDS", TRUE ~"UTR"))
+
+s08_JUN.m <- read.delim("data/genes/JUN_filtered_mRNA_08_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "JUN") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s08") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 978 & position < 1973 ~ "CDS", TRUE ~"UTR"))
+
+s09_JUN.m <- read.delim("data/genes/JUN_filtered_mRNA_09_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "JUN") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s09") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 978 & position < 1973 ~ "CDS", TRUE ~"UTR"))
+
+JUN_coverage <- bind_rows(s01_JUN.r, s02_JUN.r, s03_JUN.r,s07_JUN.r, s08_JUN.r, s09_JUN.r, 
+                          s01_JUN.m, s02_JUN.m, s03_JUN.m,s07_JUN.m, s08_JUN.m, s09_JUN.m )
+
+JUN_coverage$condition <- factor(JUN_coverage$condition,levels =c("mock", "infect.24h"))  
+
+labels <- c(mock = "mock", infect.24h = "24h SARS-CoV-2 infection")
+
+plot_JUN_coverage <- ggplot(JUN_coverage, aes(x=position, y=coverage, fill = feature, color = feature))+
+  geom_bar(stat = "identity", position = "identity")+
+  scale_fill_manual(values=c("darkblue","red"))+
+  scale_color_manual(values=c("darkblue","red"))+
+  facet_grid(method~condition, labeller=labeller(condition = labels))+
+  theme_set(theme_classic(base_size = 8))+
+  theme(plot.title = element_text(hjust = 0.5),
+        legend.position = "none")+
+  labs(title = "JUN")
+
+ggsave(
+  filename = "results/plot_JUN_coverage.PNG",
+  plot = plot_JUN_coverage,
+  width = 6,
+  height =3,
+  units = "cm",
+  dpi = 300,
+  limitsize = TRUE)
+
+
+
+```
+
+
+
+```{r}
+#IRF7
+
+s01_IRF7.r <- read.delim("data/genes/IRF7_filtered_sRNA_01_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "IRF7") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s01") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 322 & position < 1833 ~ "CDS", TRUE ~"UTR"))
+
+s02_IRF7.r <- read.delim("data/genes/IRF7_filtered_sRNA_02_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "IRF7") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s02") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 322 & position < 1833 ~ "CDS", TRUE ~"UTR"))
+
+s03_IRF7.r <- read.delim("data/genes/IRF7_filtered_sRNA_03_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "IRF7") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s03") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 322 & position < 1833 ~ "CDS", TRUE ~"UTR"))
+
+s07_IRF7.r <- read.delim("data/genes/IRF7_filtered_sRNA_07_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "IRF7") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s07") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 322 & position < 1833 ~ "CDS", TRUE ~"UTR"))
+
+s08_IRF7.r <- read.delim("data/genes/IRF7_filtered_sRNA_08_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "IRF7") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s08") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 322 & position < 1833 ~ "CDS", TRUE ~"UTR"))
+
+s09_IRF7.r <- read.delim("data/genes/IRF7_filtered_sRNA_09_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "IRF7") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s09") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 322 & position < 1833 ~ "CDS", TRUE ~"UTR"))
+###########################################################################################
+s01_IRF7.m <- read.delim("data/genes/IRF7_filtered_mRNA_01_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "IRF7") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s01") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 322 & position < 1833 ~ "CDS", TRUE ~"UTR"))
+
+s02_IRF7.m <- read.delim("data/genes/IRF7_filtered_mRNA_02_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "IRF7") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s02") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 322 & position < 1833 ~ "CDS", TRUE ~"UTR"))
+
+s03_IRF7.m <- read.delim("data/genes/IRF7_filtered_mRNA_03_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "IRF7") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s03") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 322 & position < 1833 ~ "CDS", TRUE ~"UTR"))
+
+s07_IRF7.m <- read.delim("data/genes/IRF7_filtered_mRNA_07_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>% 
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "IRF7") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s07") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 322 & position < 1833 ~ "CDS", TRUE ~"UTR"))
+
+s08_IRF7.m <- read.delim("data/genes/IRF7_filtered_mRNA_08_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "IRF7") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s08") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 322 & position < 1833 ~ "CDS", TRUE ~"UTR"))
+
+s09_IRF7.m <- read.delim("data/genes/IRF7_filtered_mRNA_09_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "IRF7") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s09") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 322 & position < 1833 ~ "CDS", TRUE ~"UTR"))
+
+IRF7_coverage <- bind_rows(s01_IRF7.r, s02_IRF7.r, s03_IRF7.r,s07_IRF7.r, s08_IRF7.r, s09_IRF7.r,
+                          s01_IRF7.m, s02_IRF7.m, s03_IRF7.m, s07_IRF7.m, s08_IRF7.m, s09_IRF7.m)
+ 
+IRF7_coverage$condition <- factor(IRF7_coverage$condition,levels =c("mock", "infect.24h"))  
+
+labels <- c(mock = "mock", infect.24h = "24h SARS-CoV-2 infection")
+
+plot_IRF7_coverage <- ggplot(IRF7_coverage, aes(x=position, y=coverage, fill = feature, color = feature))+
+  geom_bar(stat = "identity", position = "identity")+
+  theme_set(theme_classic(base_size = 8))+
+  theme(plot.title = element_text(hjust = 0.5), 
+        legend.position = "none")+
+  scale_fill_manual(values=c("darkblue","red"))+
+  scale_color_manual(values=c("darkblue","red"))+
+  facet_grid(method~condition, labeller=labeller(condition = labels))+
+  labs(title = "IRF7")
+
+ggsave(
+  filename = "results/plot_IRF7_coverage.PNG",
+  plot = plot_IRF7_coverage,
+  width = 20,
+  height =12,
+  units = "cm",
+  dpi = 300,
+  limitsize = TRUE)
+
+```
+
+
+
+```{r}
+#CCL5
+
+s01_CCL5.r <- read.delim("data/genes/CCL5_filtered_sRNA_01_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "CCL5") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s01") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 56 & position < 520 ~ "CDS", TRUE ~"UTR"))
+
+s02_CCL5.r <- read.delim("data/genes/CCL5_filtered_sRNA_02_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "CCL5") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s02") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 56 & position < 520 ~ "CDS", TRUE ~"UTR"))
+
+s03_CCL5.r <- read.delim("data/genes/CCL5_filtered_sRNA_03_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "CCL5") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s03") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 56 & position < 520 ~ "CDS", TRUE ~"UTR"))
+
+s07_CCL5.r <- read.delim("data/genes/CCL5_filtered_sRNA_07_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "CCL5") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s07") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 56 & position < 520 ~ "CDS", TRUE ~"UTR"))
+
+s08_CCL5.r <- read.delim("data/genes/CCL5_filtered_sRNA_08_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "CCL5") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s08") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 56 & position < 520 ~ "CDS", TRUE ~"UTR"))
+
+s09_CCL5.r <- read.delim("data/genes/CCL5_filtered_sRNA_09_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "CCL5") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s09") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 56 & position < 520 ~ "CDS", TRUE ~"UTR"))
+###########################################################################################
+s01_CCL5.m <- read.delim("data/genes/CCL5_filtered_mRNA_01_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "CCL5") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s01") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 56 & position < 520 ~ "CDS", TRUE ~"UTR"))
+
+s02_CCL5.m <- read.delim("data/genes/CCL5_filtered_mRNA_02_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "CCL5") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s02") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 56 & position < 520 ~ "CDS", TRUE ~"UTR"))
+
+s03_CCL5.m <- read.delim("data/genes/CCL5_filtered_mRNA_03_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "CCL5") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s03") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 56 & position < 520 ~ "CDS", TRUE ~"UTR"))
+
+s07_CCL5.m <- read.delim("data/genes/CCL5_filtered_mRNA_07_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "CCL5") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s07") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 56 & position < 520 ~ "CDS", TRUE ~"UTR"))
+
+s08_CCL5.m <- read.delim("data/genes/CCL5_filtered_mRNA_08_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "CCL5") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s08") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 56 & position < 520 ~ "CDS", TRUE ~"UTR"))
+
+s09_CCL5.m <- read.delim("data/genes/CCL5_filtered_mRNA_09_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "CCL5") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s09") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 56 & position < 520~ "CDS", TRUE ~"UTR"))
+
+CCL5_coverage <- bind_rows(s01_CCL5.r, s02_CCL5.r, s03_CCL5.r,s07_CCL5.r, s08_CCL5.r, s09_CCL5.r,
+                          s01_CCL5.m, s02_CCL5.m, s03_CCL5.m, s07_CCL5.m, s08_CCL5.m, s09_CCL5.m)
+ 
+CCL5_coverage$condition <- factor(CCL5_coverage$condition,levels =c("mock", "infect.24h"))  
+
+plot_CCL5_coverage <- ggplot(CCL5_coverage, aes(x=position, y=coverage, fill = feature, color = feature))+
+  geom_bar(stat = "identity", position = "identity")+
+  theme_set(theme_classic(base_size = 8))+
+  theme(plot.title = element_text(hjust = 0.5), 
+        legend.position = "none")+
+  scale_fill_manual(values=c("darkblue","red"))+
+  scale_color_manual(values=c("darkblue","red"))+
+  facet_grid(method~condition, labeller=labeller(condition = labels))+
+  labs(title = "CCL5")
+
+ggsave(
+  filename = "results/plot_CCL5_coverage.PNG",
+  plot = plot_CCL5_coverage,
+  width = 20,
+  height =12,
+  units = "cm",
+  dpi = 300,
+  limitsize = TRUE)
+
+```
+
+```{r}
+#IL6
+
+s01_IL6.r <- read.delim("data/genes/IL6_filtered_sRNA_01_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "IL6") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s01") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 64 & position < 702 ~ "CDS", TRUE ~"UTR"))
+
+s02_IL6.r <- read.delim("data/genes/IL6_filtered_sRNA_02_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "IL6") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s02") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 64 & position < 702 ~ "CDS", TRUE ~"UTR"))
+
+s03_IL6.r <- read.delim("data/genes/IL6_filtered_sRNA_03_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "IL6") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s03") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 64 & position < 702 ~ "CDS", TRUE ~"UTR"))
+
+s07_IL6.r <- read.delim("data/genes/IL6_filtered_sRNA_07_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "IL6") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s07") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 64 & position < 702 ~ "CDS", TRUE ~"UTR"))
+
+s08_IL6.r <- read.delim("data/genes/IL6_filtered_sRNA_08_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "IL6") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s08") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 64 & position < 702 ~ "CDS", TRUE ~"UTR"))
+
+s09_IL6.r <- read.delim("data/genes/IL6_filtered_sRNA_09_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "IL6") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s09") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 64 & position < 702 ~ "CDS", TRUE ~"UTR"))
+###########################################################################################
+s01_IL6.m <- read.delim("data/genes/IL6_filtered_mRNA_01_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "IL6") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s01") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 64 & position < 702 ~ "CDS", TRUE ~"UTR"))
+
+s02_IL6.m <- read.delim("data/genes/IL6_filtered_mRNA_02_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "IL6") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s02") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 64 & position < 702 ~ "CDS", TRUE ~"UTR"))
+
+s03_IL6.m <- read.delim("data/genes/IL6_filtered_mRNA_03_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "IL6") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s03") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 64 & position < 702 ~ "CDS", TRUE ~"UTR"))
+
+s07_IL6.m <- read.delim("data/genes/IL6_filtered_mRNA_07_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>% 
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "IL6") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s07") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 64 & position < 702 ~ "CDS", TRUE ~"UTR"))
+
+s08_IL6.m <- read.delim("data/genes/IL6_filtered_mRNA_08_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "IL6") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s08") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 64 & position < 702 ~ "CDS", TRUE ~"UTR"))
+
+s09_IL6.m <- read.delim("data/genes/IL6_filtered_mRNA_09_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "IL6") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s09") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 64 & position < 702~ "CDS", TRUE ~"UTR"))
+
+IL6_coverage <- bind_rows(s01_IL6.r, s02_IL6.r, s03_IL6.r,s07_IL6.r, s08_IL6.r, s09_IL6.r,
+                          s01_IL6.m, s02_IL6.m, s03_IL6.m, s07_IL6.m, s08_IL6.m, s09_IL6.m)
+ 
+IL6_coverage$condition <- factor(IL6_coverage$condition,levels =c("mock", "infect.24h"))  
+
+plot_IL6_coverage <- ggplot(IL6_coverage, aes(x=position, y=coverage, fill = feature, color = feature))+
+  geom_bar(stat = "identity", position = "identity")+
+  theme_set(theme_classic(base_size = 8))+
+  theme(plot.title = element_text(hjust = 0.5),
+        legend.position = "none")+
+  scale_fill_manual(values=c("darkblue","red"))+
+  scale_color_manual(values=c("darkblue","red"))+
+  facet_grid(method~condition, labeller=labeller(condition = labels))+
+  labs(title = "IL6")
+
+ggsave(
+  filename = "results/plot_IL6_coverage.PNG",
+  plot = plot_IL6_coverage,
+  width = 20,
+  height =12,
+  units = "cm",
+  dpi = 300,
+  limitsize = TRUE)
+
+```
+
+```{r}
+
+#OAS2
+
+s01_OAS2.r <- read.delim("data/genes/OAS2_filtered_sRNA_01_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "OAS2") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s01") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 91 & position < 2154 ~ "CDS", TRUE ~"UTR"))
+
+s02_OAS2.r <- read.delim("data/genes/OAS2_filtered_sRNA_02_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "OAS2") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s02") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 91 & position < 2154 ~ "CDS", TRUE ~"UTR"))
+
+s03_OAS2.r <- read.delim("data/genes/OAS2_filtered_sRNA_03_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "OAS2") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s03") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 91 & position < 2154 ~ "CDS", TRUE ~"UTR"))
+
+s07_OAS2.r <- read.delim("data/genes/OAS2_filtered_sRNA_07_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "OAS2") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s07") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 91 & position < 2154 ~ "CDS", TRUE ~"UTR"))
+
+s08_OAS2.r <- read.delim("data/genes/OAS2_filtered_sRNA_08_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "OAS2") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s08") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 91 & position < 2154 ~ "CDS", TRUE ~"UTR"))
+
+s09_OAS2.r <- read.delim("data/genes/OAS2_filtered_sRNA_09_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "OAS2") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s09") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 91 & position < 2154 ~ "CDS", TRUE ~"UTR"))
+###########################################################################################
+s01_OAS2.m <- read.delim("data/genes/OAS2_filtered_mRNA_01_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "OAS2") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s01") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 91 & position < 2154 ~ "CDS", TRUE ~"UTR"))
+
+s02_OAS2.m <- read.delim("data/genes/OAS2_filtered_mRNA_02_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "OAS2") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s02") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 91 & position < 2154 ~ "CDS", TRUE ~"UTR"))
+
+s03_OAS2.m <- read.delim("data/genes/OAS2_filtered_mRNA_03_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "OAS2") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s03") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 91 & position < 2154 ~ "CDS", TRUE ~"UTR"))
+
+s07_OAS2.m <- read.delim("data/genes/OAS2_filtered_mRNA_07_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>% 
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "OAS2") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s07") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 91 & position < 2154 ~ "CDS", TRUE ~"UTR"))
+
+s08_OAS2.m <- read.delim("data/genes/OAS2_filtered_mRNA_08_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "OAS2") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s08") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 91 & position < 2154 ~ "CDS", TRUE ~"UTR"))
+
+s09_OAS2.m <- read.delim("data/genes/OAS2_filtered_mRNA_09_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "OAS2") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s09") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 91 & position < 2154~ "CDS", TRUE ~"UTR"))
+
+OAS2_coverage <- bind_rows(s01_OAS2.r, s02_OAS2.r, s03_OAS2.r,s07_OAS2.r, s08_OAS2.r, s09_OAS2.r,
+                          s01_OAS2.m, s02_OAS2.m, s03_OAS2.m, s07_OAS2.m, s08_OAS2.m, s09_OAS2.m)
+ 
+OAS2_coverage$condition <- factor(OAS2_coverage$condition,levels =c("mock", "infect.24h"))  
+
+plot_OAS2_coverage <- ggplot(OAS2_coverage, aes(x=position, y=coverage, fill = feature, color = feature))+
+  geom_bar(stat = "identity", position = "identity")+
+  theme_set(theme_classic(base_size = 8))+
+  theme(plot.title = element_text(hjust = 0.5),
+        legend.position = "none")+
+  scale_fill_manual(values=c("darkblue","red"))+
+  scale_color_manual(values=c("darkblue","red"))+
+  facet_grid(method~condition, labeller=labeller(condition = labels))+
+  labs(title = "OAS2")
+
+ggsave(
+  filename = "results/plot_OAS2_coverage.PNG",
+  plot = plot_OAS2_coverage,
+  width = 20,
+  height =12,
+  units = "cm",
+  dpi = 300,
+  limitsize = TRUE)
+
+```
+
+```{r}
+
+#IFNB1
+
+s01_IFNB1.r <- read.delim("data/genes/IFNB1_filtered_sRNA_01_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "IFNB1") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s01") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 74 & position < 637 ~ "CDS", TRUE ~"UTR"))
+
+s02_IFNB1.r <- read.delim("data/genes/IFNB1_filtered_sRNA_02_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "IFNB1") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s02") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 74 & position < 637 ~ "CDS", TRUE ~"UTR"))
+
+s03_IFNB1.r <- read.delim("data/genes/IFNB1_filtered_sRNA_03_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "IFNB1") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s03") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 74 & position < 637 ~ "CDS", TRUE ~"UTR"))
+
+s07_IFNB1.r <- read.delim("data/genes/IFNB1_filtered_sRNA_07_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "IFNB1") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s07") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 74 & position < 637 ~ "CDS", TRUE ~"UTR"))
+
+s08_IFNB1.r <- read.delim("data/genes/IFNB1_filtered_sRNA_08_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "IFNB1") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s08") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 74 & position < 637 ~ "CDS", TRUE ~"UTR"))
+
+s09_IFNB1.r <- read.delim("data/genes/IFNB1_filtered_sRNA_09_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "IFNB1") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s09") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 74 & position < 637 ~ "CDS", TRUE ~"UTR"))
+###########################################################################################
+s01_IFNB1.m <- read.delim("data/genes/IFNB1_filtered_mRNA_01_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "IFNB1") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s01") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 74 & position < 637 ~ "CDS", TRUE ~"UTR"))
+
+s02_IFNB1.m <- read.delim("data/genes/IFNB1_filtered_mRNA_02_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "IFNB1") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s02") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 74 & position < 637 ~ "CDS", TRUE ~"UTR"))
+
+s03_IFNB1.m <- read.delim("data/genes/IFNB1_filtered_mRNA_03_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "IFNB1") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s03") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 74 & position < 637 ~ "CDS", TRUE ~"UTR"))
+
+s07_IFNB1.m <- read.delim("data/genes/IFNB1_filtered_mRNA_07_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>% 
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "IFNB1") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s07") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 74 & position < 637 ~ "CDS", TRUE ~"UTR"))
+
+s08_IFNB1.m <- read.delim("data/genes/IFNB1_filtered_mRNA_08_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "IFNB1") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s08") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 74 & position < 637 ~ "CDS", TRUE ~"UTR"))
+
+s09_IFNB1.m <- read.delim("data/genes/IFNB1_filtered_mRNA_09_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "IFNB1") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s09") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 74 & position < 637~ "CDS", TRUE ~"UTR"))
+
+IFNB1_coverage <- bind_rows(s01_IFNB1.r, s02_IFNB1.r, s03_IFNB1.r,s07_IFNB1.r, s08_IFNB1.r, s09_IFNB1.r,
+                          s01_IFNB1.m, s02_IFNB1.m, s03_IFNB1.m, s07_IFNB1.m, s08_IFNB1.m, s09_IFNB1.m)
+ 
+IFNB1_coverage$condition <- factor(IFNB1_coverage$condition,levels =c("mock", "infect.24h"))  
+
+plot_IFNB1_coverage <- ggplot(IFNB1_coverage, aes(x=position, y=coverage, fill = feature, color = feature))+
+  geom_bar(stat = "identity", position = "identity")+
+  theme_set(theme_classic(base_size = 8))+
+  theme(plot.title = element_text(hjust = 0.5),
+        legend.position = "none")+
+  scale_fill_manual(values=c("darkblue","red"))+
+  scale_color_manual(values=c("darkblue","red"))+
+  facet_grid(method~condition, labeller=labeller(condition = labels))+
+  labs(title = "IFNB1")
+
+ggsave(
+  filename = "results/plot_IFNB1_coverage.PNG",
+  plot = plot_IFNB1_coverage,
+  width = 20,
+  height =12,
+  units = "cm",
+  dpi = 300,
+  limitsize = TRUE)
+
+```
+
+```{r}
+#CXCL10
+
+s01_CXCL10.r <- read.delim("data/genes/CXCL10_filtered_sRNA_01_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "CXCL10") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s01") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 67 & position < 363 ~ "CDS", TRUE ~"UTR"))
+
+s02_CXCL10.r <- read.delim("data/genes/CXCL10_filtered_sRNA_02_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "CXCL10") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s02") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 67 & position < 363 ~ "CDS", TRUE ~"UTR"))
+
+s03_CXCL10.r <- read.delim("data/genes/CXCL10_filtered_sRNA_03_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "CXCL10") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s03") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 67 & position < 363 ~ "CDS", TRUE ~"UTR"))
+
+s07_CXCL10.r <- read.delim("data/genes/CXCL10_filtered_sRNA_07_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "CXCL10") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s07") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 67 & position < 363 ~ "CDS", TRUE ~"UTR"))
+
+s08_CXCL10.r <- read.delim("data/genes/CXCL10_filtered_sRNA_08_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "CXCL10") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s08") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 67 & position < 363 ~ "CDS", TRUE ~"UTR"))
+
+s09_CXCL10.r <- read.delim("data/genes/CXCL10_filtered_sRNA_09_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "CXCL10") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s09") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 67 & position < 363 ~ "CDS", TRUE ~"UTR"))
+###########################################################################################
+s01_CXCL10.m <- read.delim("data/genes/CXCL10_filtered_mRNA_01_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "CXCL10") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s01") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 67 & position < 363 ~ "CDS", TRUE ~"UTR"))
+
+s02_CXCL10.m <- read.delim("data/genes/CXCL10_filtered_mRNA_02_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "CXCL10") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s02") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 67 & position < 363 ~ "CDS", TRUE ~"UTR"))
+
+s03_CXCL10.m <- read.delim("data/genes/CXCL10_filtered_mRNA_03_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "CXCL10") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s03") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 67 & position < 363 ~ "CDS", TRUE ~"UTR"))
+
+s07_CXCL10.m <- read.delim("data/genes/CXCL10_filtered_mRNA_07_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>% 
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "CXCL10") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s07") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 67 & position < 363 ~ "CDS", TRUE ~"UTR"))
+
+s08_CXCL10.m <- read.delim("data/genes/CXCL10_filtered_mRNA_08_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "CXCL10") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s08") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 67 & position < 363 ~ "CDS", TRUE ~"UTR"))
+
+s09_CXCL10.m <- read.delim("data/genes/CXCL10_filtered_mRNA_09_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "CXCL10") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s09") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 67 & position < 363~ "CDS", TRUE ~"UTR"))
+
+CXCL10_coverage <- bind_rows(s01_CXCL10.r, s02_CXCL10.r, s03_CXCL10.r,s07_CXCL10.r, s08_CXCL10.r, s09_CXCL10.r,
+                          s01_CXCL10.m, s02_CXCL10.m, s03_CXCL10.m, s07_CXCL10.m, s08_CXCL10.m, s09_CXCL10.m)
+ 
+CXCL10_coverage$condition <- factor(CXCL10_coverage$condition,levels =c("mock", "infect.24h"))  
+
+plot_CXCL10_coverage <- ggplot(CXCL10_coverage, aes(x=position, y=coverage, fill = feature, color = feature))+
+  geom_bar(stat = "identity", position = "identity")+
+  theme_set(theme_classic(base_size = 8))+
+  theme(plot.title = element_text(hjust = 0.5),
+        legend.position = "none")+
+  scale_fill_manual(values=c("darkblue","red"))+
+  scale_color_manual(values=c("darkblue","red"))+
+  facet_grid(method~condition, labeller=labeller(condition = labels))+
+  labs(title = "CXCL10")
+
+ggsave(
+  filename = "results/plot_CXCL10_coverage.PNG",
+  plot = plot_CXCL10_coverage,
+  width = 20,
+  height =12,
+  units = "cm",
+  dpi = 300,
+  limitsize = TRUE)
+
+```
+
+```{r}
+#TLR3
+
+s01_TLR3.r <- read.delim("data/genes/TLR3_filtered_sRNA_01_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "TLR3") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s01") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 101 & position < 2815 ~ "CDS", TRUE ~"UTR"))
+
+s02_TLR3.r <- read.delim("data/genes/TLR3_filtered_sRNA_02_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "TLR3") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s02") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 101 & position < 2815 ~ "CDS", TRUE ~"UTR"))
+
+s03_TLR3.r <- read.delim("data/genes/TLR3_filtered_sRNA_03_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "TLR3") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s03") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 101 & position < 2815 ~ "CDS", TRUE ~"UTR"))
+
+s07_TLR3.r <- read.delim("data/genes/TLR3_filtered_sRNA_07_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "TLR3") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s07") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 101 & position < 2815 ~ "CDS", TRUE ~"UTR"))
+
+s08_TLR3.r <- read.delim("data/genes/TLR3_filtered_sRNA_08_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "TLR3") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s08") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 101 & position < 2815 ~ "CDS", TRUE ~"UTR"))
+
+s09_TLR3.r <- read.delim("data/genes/TLR3_filtered_sRNA_09_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "TLR3") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s09") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 101 & position < 2815 ~ "CDS", TRUE ~"UTR"))
+###########################################################################################
+s01_TLR3.m <- read.delim("data/genes/TLR3_filtered_mRNA_01_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "TLR3") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s01") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 101 & position < 2815 ~ "CDS", TRUE ~"UTR"))
+
+s02_TLR3.m <- read.delim("data/genes/TLR3_filtered_mRNA_02_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "TLR3") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s02") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 101 & position < 2815 ~ "CDS", TRUE ~"UTR"))
+
+s03_TLR3.m <- read.delim("data/genes/TLR3_filtered_mRNA_03_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "TLR3") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s03") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 101 & position < 2815 ~ "CDS", TRUE ~"UTR"))
+
+s07_TLR3.m <- read.delim("data/genes/TLR3_filtered_mRNA_07_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>% 
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "TLR3") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s07") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 101 & position < 2815 ~ "CDS", TRUE ~"UTR"))
+
+s08_TLR3.m <- read.delim("data/genes/TLR3_filtered_mRNA_08_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "TLR3") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s08") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 101 & position < 2815 ~ "CDS", TRUE ~"UTR"))
+
+s09_TLR3.m <- read.delim("data/genes/TLR3_filtered_mRNA_09_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "TLR3") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s09") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 101 & position < 2815~ "CDS", TRUE ~"UTR"))
+
+TLR3_coverage <- bind_rows(s01_TLR3.r, s02_TLR3.r, s03_TLR3.r,s07_TLR3.r, s08_TLR3.r, s09_TLR3.r,
+                          s01_TLR3.m, s02_TLR3.m, s03_TLR3.m, s07_TLR3.m, s08_TLR3.m, s09_TLR3.m)
+ 
+TLR3_coverage$condition <- factor(TLR3_coverage$condition,levels =c("mock", "infect.24h"))  
+
+plot_TLR3_coverage <- ggplot(TLR3_coverage, aes(x=position, y=coverage, fill = feature, color = feature))+
+  geom_bar(stat = "identity", position = "identity")+
+  theme_set(theme_classic(base_size = 8))+
+  theme(plot.title = element_text(hjust = 0.5))+
+  scale_fill_manual(values=c("darkblue","red"))+
+  scale_color_manual(values=c("darkblue","red"))+
+  facet_grid(method~condition)+
+  labs(title = "TLR3")
+
+ggsave(
+  filename = "results/plot_TLR3_coverage.PNG",
+  plot = plot_TLR3_coverage,
+  width = 20,
+  height =12,
+  units = "cm",
+  dpi = 300,
+  limitsize = TRUE)
+```
+
+```{r}
+#RIG1
+
+s01_RIG1.r <- read.delim("data/genes/RIG1_filtered_sRNA_01_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "RIG1") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s01") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 31 & position < 2808 ~ "CDS", TRUE ~"UTR"))
+
+s02_RIG1.r <- read.delim("data/genes/RIG1_filtered_sRNA_02_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "RIG1") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s02") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 31 & position < 2808 ~ "CDS", TRUE ~"UTR"))
+
+s03_RIG1.r <- read.delim("data/genes/RIG1_filtered_sRNA_03_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "RIG1") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s03") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 31 & position < 2808 ~ "CDS", TRUE ~"UTR"))
+
+s07_RIG1.r <- read.delim("data/genes/RIG1_filtered_sRNA_07_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "RIG1") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s07") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 31 & position < 2808 ~ "CDS", TRUE ~"UTR"))
+
+s08_RIG1.r <- read.delim("data/genes/RIG1_filtered_sRNA_08_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "RIG1") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s08") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 31 & position < 2808 ~ "CDS", TRUE ~"UTR"))
+
+s09_RIG1.r <- read.delim("data/genes/RIG1_filtered_sRNA_09_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "RIG1") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s09") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 31 & position < 2808 ~ "CDS", TRUE ~"UTR"))
+###########################################################################################
+s01_RIG1.m <- read.delim("data/genes/RIG1_filtered_mRNA_01_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "RIG1") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s01") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 31 & position < 2808 ~ "CDS", TRUE ~"UTR"))
+
+s02_RIG1.m <- read.delim("data/genes/RIG1_filtered_mRNA_02_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "RIG1") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s02") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 31 & position < 2808 ~ "CDS", TRUE ~"UTR"))
+
+s03_RIG1.m <- read.delim("data/genes/RIG1_filtered_mRNA_03_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "RIG1") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s03") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 31 & position < 2808 ~ "CDS", TRUE ~"UTR"))
+
+s07_RIG1.m <- read.delim("data/genes/RIG1_filtered_mRNA_07_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>% 
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "RIG1") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s07") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 31 & position < 2808 ~ "CDS", TRUE ~"UTR"))
+
+s08_RIG1.m <- read.delim("data/genes/RIG1_filtered_mRNA_08_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "RIG1") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s08") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 31 & position < 2808 ~ "CDS", TRUE ~"UTR"))
+
+s09_RIG1.m <- read.delim("data/genes/RIG1_filtered_mRNA_09_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "RIG1") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s09") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 31 & position < 2808~ "CDS", TRUE ~"UTR"))
+
+RIG1_coverage <- bind_rows(s01_RIG1.r, s02_RIG1.r, s03_RIG1.r,s07_RIG1.r, s08_RIG1.r, s09_RIG1.r,
+                          s01_RIG1.m, s02_RIG1.m, s03_RIG1.m, s07_RIG1.m, s08_RIG1.m, s09_RIG1.m)
+ 
+RIG1_coverage$condition <- factor(RIG1_coverage$condition,levels =c("mock", "infect.24h"))  
+
+plot_RIG1_coverage <- ggplot(RIG1_coverage, aes(x=position, y=coverage, fill = feature))+
+  geom_bar(stat = "identity", position = "identity")+
+  theme_set(theme_classic(base_size = 8))+
+  theme(plot.title = element_text(hjust = 0.5))+
+  scale_fill_manual(values=c("darkblue","red"))+
+  facet_grid(method~condition)+
+  labs(title = "RIG1")
+
+ggsave(
+  filename = "results/plot_RIG1_coverage.PNG",
+  plot = plot_RIG1_coverage,
+  width = 20,
+  height =12,
+  units = "cm",
+  dpi = 300,
+  limitsize = TRUE)
+```
+
+```{r}
+#NFKBIA
+
+s01_NFKBIA.r <- read.delim("data/genes/NFKBIA_filtered_sRNA_01_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "NFKBIA") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s01") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 106 & position < 1059 ~ "CDS", TRUE ~"UTR"))
+
+s02_NFKBIA.r <- read.delim("data/genes/NFKBIA_filtered_sRNA_02_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "NFKBIA") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s02") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 106 & position < 1059 ~ "CDS", TRUE ~"UTR"))
+
+s03_NFKBIA.r <- read.delim("data/genes/NFKBIA_filtered_sRNA_03_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "NFKBIA") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s03") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 106 & position < 1059 ~ "CDS", TRUE ~"UTR"))
+
+s07_NFKBIA.r <- read.delim("data/genes/NFKBIA_filtered_sRNA_07_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "NFKBIA") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s07") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 106 & position < 1059 ~ "CDS", TRUE ~"UTR"))
+
+s08_NFKBIA.r <- read.delim("data/genes/NFKBIA_filtered_sRNA_08_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "NFKBIA") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s08") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 106 & position < 1059 ~ "CDS", TRUE ~"UTR"))
+
+s09_NFKBIA.r <- read.delim("data/genes/NFKBIA_filtered_sRNA_09_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "NFKBIA") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s09") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 106 & position < 1059 ~ "CDS", TRUE ~"UTR"))
+###########################################################################################
+s01_NFKBIA.m <- read.delim("data/genes/NFKBIA_filtered_mRNA_01_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "NFKBIA") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s01") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 106 & position < 1059 ~ "CDS", TRUE ~"UTR"))
+
+s02_NFKBIA.m <- read.delim("data/genes/NFKBIA_filtered_mRNA_02_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "NFKBIA") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s02") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 106 & position < 1059 ~ "CDS", TRUE ~"UTR"))
+
+s03_NFKBIA.m <- read.delim("data/genes/NFKBIA_filtered_mRNA_03_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "NFKBIA") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s03") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 106 & position < 1059 ~ "CDS", TRUE ~"UTR"))
+
+s07_NFKBIA.m <- read.delim("data/genes/NFKBIA_filtered_mRNA_07_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>% 
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "NFKBIA") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s07") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 106 & position < 1059 ~ "CDS", TRUE ~"UTR"))
+
+s08_NFKBIA.m <- read.delim("data/genes/NFKBIA_filtered_mRNA_08_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "NFKBIA") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s08") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 106 & position < 1059 ~ "CDS", TRUE ~"UTR"))
+
+s09_NFKBIA.m <- read.delim("data/genes/NFKBIA_filtered_mRNA_09_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "NFKBIA") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s09") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 106 & position < 1059~ "CDS", TRUE ~"UTR"))
+
+NFKBIA_coverage <- bind_rows(s01_NFKBIA.r, s02_NFKBIA.r, s03_NFKBIA.r,s07_NFKBIA.r, s08_NFKBIA.r, s09_NFKBIA.r,
+                          s01_NFKBIA.m, s02_NFKBIA.m, s03_NFKBIA.m, s07_NFKBIA.m, s08_NFKBIA.m, s09_NFKBIA.m)
+ 
+NFKBIA_coverage$condition <- factor(NFKBIA_coverage$condition,levels =c("mock", "infect.24h"))  
+
+plot_NFKBIA_coverage <- ggplot(NFKBIA_coverage, aes(x=position, y=coverage, fill = feature))+
+  geom_bar(stat = "identity", position = "identity")+
+  theme_set(theme_classic(base_size = 8))+
+  theme(plot.title = element_text(hjust = 0.5))+
+  scale_fill_manual(values=c("darkblue","red"))+
+  facet_grid(method~condition)+
+  labs(title = "NFKBIA")
+
+ggsave(
+  filename = "results/plot_NFKBIA_coverage.PNG",
+  plot = plot_NFKBIA_coverage,
+  width = 20,
+  height =12,
+  units = "cm",
+  dpi = 300,
+  limitsize = TRUE)
+```
+
+
+```{r}
+#CYP1A1
+
+s01_CYP1A1.r <- read.delim("data/genes/CYP1A1_filtered_sRNA_01_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "CYP1A1") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s01") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 310 & position < 1656 ~ "CDS", TRUE ~"UTR"))
+
+s02_CYP1A1.r <- read.delim("data/genes/CYP1A1_filtered_sRNA_02_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "CYP1A1") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s02") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 310 & position < 1656 ~ "CDS", TRUE ~"UTR"))
+
+s03_CYP1A1.r <- read.delim("data/genes/CYP1A1_filtered_sRNA_03_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "CYP1A1") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s03") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 118 & position < 1656 ~ "CDS", TRUE ~"UTR"))
+
+s07_CYP1A1.r <- read.delim("data/genes/CYP1A1_filtered_sRNA_07_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "CYP1A1") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s07") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 118 & position < 1656 ~ "CDS", TRUE ~"UTR"))
+
+s08_CYP1A1.r <- read.delim("data/genes/CYP1A1_filtered_sRNA_08_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "CYP1A1") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s08") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 118 & position < 1656 ~ "CDS", TRUE ~"UTR"))
+
+s09_CYP1A1.r <- read.delim("data/genes/CYP1A1_filtered_sRNA_09_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "CYP1A1") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s09") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 118 & position < 1656 ~ "CDS", TRUE ~"UTR"))
+###########################################################################################
+s01_CYP1A1.m <- read.delim("data/genes/CYP1A1_filtered_mRNA_01_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "CYP1A1") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s01") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 118 & position < 1656 ~ "CDS", TRUE ~"UTR"))
+
+s02_CYP1A1.m <- read.delim("data/genes/CYP1A1_filtered_mRNA_02_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "CYP1A1") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s02") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 118 & position < 1656 ~ "CDS", TRUE ~"UTR"))
+
+s03_CYP1A1.m <- read.delim("data/genes/CYP1A1_filtered_mRNA_03_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "CYP1A1") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s03") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 118 & position < 1656 ~ "CDS", TRUE ~"UTR"))
+
+s07_CYP1A1.m <- read.delim("data/genes/CYP1A1_filtered_mRNA_07_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>% 
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "CYP1A1") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s07") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 118 & position < 1656 ~ "CDS", TRUE ~"UTR"))
+
+s08_CYP1A1.m <- read.delim("data/genes/CYP1A1_filtered_mRNA_08_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "CYP1A1") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s08") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 118 & position < 1656 ~ "CDS", TRUE ~"UTR"))
+
+s09_CYP1A1.m <- read.delim("data/genes/CYP1A1_filtered_mRNA_09_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "CYP1A1") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s09") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 118 & position < 1656~ "CDS", TRUE ~"UTR"))
+
+CYP1A1_coverage <- bind_rows(s01_CYP1A1.r, s02_CYP1A1.r, s03_CYP1A1.r,s07_CYP1A1.r, s08_CYP1A1.r, s09_CYP1A1.r,
+                          s01_CYP1A1.m, s02_CYP1A1.m, s03_CYP1A1.m, s07_CYP1A1.m, s08_CYP1A1.m, s09_CYP1A1.m)
+ 
+CYP1A1_coverage$condition <- factor(CYP1A1_coverage$condition,levels =c("mock", "infect.24h"))  
+
+plot_CYP1A1_coverage <- ggplot(CYP1A1_coverage, aes(x=position, y=coverage, fill = feature))+
+  geom_bar(stat = "identity", position = "identity")+
+  theme_set(theme_classic(base_size = 8))+
+  theme(plot.title = element_text(hjust = 0.5))+
+  scale_fill_manual(values=c("darkblue","red"))+
+  facet_grid(method~condition)+
+  labs(title = "CYP1A1")
+
+ggsave(
+  filename = "results/plot_CYP1A1_coverage.PNG",
+  plot = plot_CYP1A1_coverage,
+  width = 20,
+  height =12,
+  units = "cm",
+  dpi = 300,
+  limitsize = TRUE)
+
+```
+
+```{r}
+
+#STAT1
+
+s01_STAT1.r <- read.delim("data/genes/STAT1_filtered_sRNA_01_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "STAT1") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s01") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 310 & position < 2562 ~ "CDS", TRUE ~"UTR"))
+
+s02_STAT1.r <- read.delim("data/genes/STAT1_filtered_sRNA_02_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "STAT1") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s02") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 310 & position < 2562 ~ "CDS", TRUE ~"UTR"))
+
+s03_STAT1.r <- read.delim("data/genes/STAT1_filtered_sRNA_03_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "STAT1") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s03") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 310 & position < 2562 ~ "CDS", TRUE ~"UTR"))
+
+s07_STAT1.r <- read.delim("data/genes/STAT1_filtered_sRNA_07_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "STAT1") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s07") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 310 & position < 2562 ~ "CDS", TRUE ~"UTR"))
+
+s08_STAT1.r <- read.delim("data/genes/STAT1_filtered_sRNA_08_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "STAT1") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s08") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 310 & position < 2562 ~ "CDS", TRUE ~"UTR"))
+
+s09_STAT1.r <- read.delim("data/genes/STAT1_filtered_sRNA_09_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "STAT1") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s09") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 310 & position < 2562 ~ "CDS", TRUE ~"UTR"))
+###########################################################################################
+s01_STAT1.m <- read.delim("data/genes/STAT1_filtered_mRNA_01_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "STAT1") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s01") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 310 & position < 2562 ~ "CDS", TRUE ~"UTR"))
+
+s02_STAT1.m <- read.delim("data/genes/STAT1_filtered_mRNA_02_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "STAT1") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s02") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 310 & position < 2562 ~ "CDS", TRUE ~"UTR"))
+
+s03_STAT1.m <- read.delim("data/genes/STAT1_filtered_mRNA_03_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "STAT1") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s03") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 310 & position < 2562 ~ "CDS", TRUE ~"UTR"))
+
+s07_STAT1.m <- read.delim("data/genes/STAT1_filtered_mRNA_07_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>% 
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "STAT1") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s07") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 310 & position < 2562 ~ "CDS", TRUE ~"UTR"))
+
+s08_STAT1.m <- read.delim("data/genes/STAT1_filtered_mRNA_08_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "STAT1") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s08") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 310 & position < 2562 ~ "CDS", TRUE ~"UTR"))
+
+s09_STAT1.m <- read.delim("data/genes/STAT1_filtered_mRNA_09_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "STAT1") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s09") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 310 & position < 2562~ "CDS", TRUE ~"UTR"))
+
+STAT1_coverage <- bind_rows(s01_STAT1.r, s02_STAT1.r, s03_STAT1.r,s07_STAT1.r, s08_STAT1.r, s09_STAT1.r,
+                          s01_STAT1.m, s02_STAT1.m, s03_STAT1.m, s07_STAT1.m, s08_STAT1.m, s09_STAT1.m)
+ 
+STAT1_coverage$condition <- factor(STAT1_coverage$condition,levels =c("mock", "infect.24h"))  
+
+plot_STAT1_coverage <- ggplot(STAT1_coverage, aes(x=position, y=coverage, fill = feature))+
+  geom_bar(stat = "identity", position = "identity")+
+  theme_set(theme_classic(base_size = 8))+
+  theme(plot.title = element_text(hjust = 0.5))+
+  scale_fill_manual(values=c("darkblue","red"))+
+  facet_grid(method~condition)+
+  labs(title = "STAT1")
+
+ggsave(
+  filename = "results/plot_STAT1_coverage.PNG",
+  plot = plot_STAT1_coverage,
+  width = 20,
+  height =12,
+  units = "cm",
+  dpi = 300,
+  limitsize = TRUE)
+
+```
+
+
+```{r}
+#REL
+
+s01_REL.r <- read.delim("data/genes/REL_filtered_sRNA_01_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "REL") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s01") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 268 & position < 2031 ~ "CDS", TRUE ~"UTR"))
+
+s02_REL.r <- read.delim("data/genes/REL_filtered_sRNA_02_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "REL") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s02") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 268 & position < 2031 ~ "CDS", TRUE ~"UTR"))
+
+s03_REL.r <- read.delim("data/genes/REL_filtered_sRNA_03_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "REL") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s03") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 268 & position < 2031 ~ "CDS", TRUE ~"UTR"))
+
+s07_REL.r <- read.delim("data/genes/REL_filtered_sRNA_07_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "REL") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s07") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 268 & position < 2031 ~ "CDS", TRUE ~"UTR"))
+
+s08_REL.r <- read.delim("data/genes/REL_filtered_sRNA_08_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "REL") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s08") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 268 & position < 2031 ~ "CDS", TRUE ~"UTR"))
+
+s09_REL.r <- read.delim("data/genes/REL_filtered_sRNA_09_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "REL") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s09") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 268 & position < 2031 ~ "CDS", TRUE ~"UTR"))
+###########################################################################################
+s01_REL.m <- read.delim("data/genes/REL_filtered_mRNA_01_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "REL") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s01") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 268 & position < 2031 ~ "CDS", TRUE ~"UTR"))
+
+s02_REL.m <- read.delim("data/genes/REL_filtered_mRNA_02_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "REL") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s02") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 268 & position < 2031 ~ "CDS", TRUE ~"UTR"))
+
+s03_REL.m <- read.delim("data/genes/REL_filtered_mRNA_03_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "REL") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s03") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 268 & position < 2031 ~ "CDS", TRUE ~"UTR"))
+
+s07_REL.m <- read.delim("data/genes/REL_filtered_mRNA_07_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>% 
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "REL") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s07") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 268 & position < 2031 ~ "CDS", TRUE ~"UTR"))
+
+s08_REL.m <- read.delim("data/genes/REL_filtered_mRNA_08_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "REL") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s08") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 268 & position < 2031 ~ "CDS", TRUE ~"UTR"))
+
+s09_REL.m <- read.delim("data/genes/REL_filtered_mRNA_09_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "REL") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s09") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 268 & position < 2031~ "CDS", TRUE ~"UTR"))
+
+REL_coverage <- bind_rows(s01_REL.r, s02_REL.r, s03_REL.r,s07_REL.r, s08_REL.r, s09_REL.r,
+                          s01_REL.m, s02_REL.m, s03_REL.m, s07_REL.m, s08_REL.m, s09_REL.m)
+ 
+REL_coverage$condition <- factor(REL_coverage$condition,levels =c("mock", "infect.24h"))  
+
+plot_REL_coverage <- ggplot(REL_coverage, aes(x=position, y=coverage, fill = feature, color = feature))+
+  geom_bar(stat = "identity", position = "identity")+
+  theme_set(theme_classic(base_size = 8))+
+  theme(plot.title = element_text(hjust = 0.5), 
+        legend.position = "none")+
+  scale_fill_manual(values=c("darkblue","red"))+
+  scale_color_manual(values=c("darkblue","red"))+
+  facet_grid(method~condition, labeller=labeller(condition = labels))+
+  labs(title = "REL")
+
+ggsave(
+  filename = "results/plot_REL_coverage.PNG",
+  plot = plot_REL_coverage,
+  width = 20,
+  height =12,
+  units = "cm",
+  dpi = 300,
+  limitsize = TRUE)
+```
+
+```{r}
+#TNFSF10
+
+s01_TNFSF10.r <- read.delim("data/genes/TNFSF10_filtered_sRNA_01_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "TNFSF10") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s01") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 47 & position < 892 ~ "CDS", TRUE ~"UTR"))
+
+s02_TNFSF10.r <- read.delim("data/genes/TNFSF10_filtered_sRNA_02_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "TNFSF10") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s02") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 47 & position < 892 ~ "CDS", TRUE ~"UTR"))
+
+s03_TNFSF10.r <- read.delim("data/genes/TNFSF10_filtered_sRNA_03_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "TNFSF10") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s03") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 47 & position < 892 ~ "CDS", TRUE ~"UTR"))
+
+s07_TNFSF10.r <- read.delim("data/genes/TNFSF10_filtered_sRNA_07_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "TNFSF10") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s07") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 47 & position < 892 ~ "CDS", TRUE ~"UTR"))
+
+s08_TNFSF10.r <- read.delim("data/genes/TNFSF10_filtered_sRNA_08_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "TNFSF10") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s08") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 47 & position < 892 ~ "CDS", TRUE ~"UTR"))
+
+s09_TNFSF10.r <- read.delim("data/genes/TNFSF10_filtered_sRNA_09_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "TNFSF10") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s09") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 47 & position < 892 ~ "CDS", TRUE ~"UTR"))
+###########################################################################################
+s01_TNFSF10.m <- read.delim("data/genes/TNFSF10_filtered_mRNA_01_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "TNFSF10") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s01") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 47 & position < 892 ~ "CDS", TRUE ~"UTR"))
+
+s02_TNFSF10.m <- read.delim("data/genes/TNFSF10_filtered_mRNA_02_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "TNFSF10") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s02") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 47 & position < 892 ~ "CDS", TRUE ~"UTR"))
+
+s03_TNFSF10.m <- read.delim("data/genes/TNFSF10_filtered_mRNA_03_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "TNFSF10") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s03") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 47 & position < 892 ~ "CDS", TRUE ~"UTR"))
+
+s07_TNFSF10.m <- read.delim("data/genes/TNFSF10_filtered_mRNA_07_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>% 
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "TNFSF10") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s07") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 47 & position < 892 ~ "CDS", TRUE ~"UTR"))
+
+s08_TNFSF10.m <- read.delim("data/genes/TNFSF10_filtered_mRNA_08_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "TNFSF10") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s08") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 47 & position < 892 ~ "CDS", TRUE ~"UTR"))
+
+s09_TNFSF10.m <- read.delim("data/genes/TNFSF10_filtered_mRNA_09_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "TNFSF10") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s09") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 47 & position < 892~ "CDS", TRUE ~"UTR"))
+
+TNFSF10_coverage <- bind_rows(s01_TNFSF10.r, s02_TNFSF10.r, s03_TNFSF10.r,s07_TNFSF10.r, s08_TNFSF10.r, s09_TNFSF10.r,
+                          s01_TNFSF10.m, s02_TNFSF10.m, s03_TNFSF10.m, s07_TNFSF10.m, s08_TNFSF10.m, s09_TNFSF10.m)
+ 
+TNFSF10_coverage$condition <- factor(TNFSF10_coverage$condition,levels =c("mock", "infect.24h"))  
+
+plot_TNFSF10_coverage <- ggplot(TNFSF10_coverage, aes(x=position, y=coverage, fill = feature, color = feature))+
+  geom_bar(stat = "identity", position = "identity")+
+  theme_set(theme_classic(base_size = 8))+
+  theme(plot.title = element_text(hjust = 0.5), 
+        legend.position = "none")+
+  scale_fill_manual(values=c("darkblue","red"))+
+  scale_color_manual(values=c("darkblue","red"))+
+  facet_grid(method~condition, labeller=labeller(condition = labels))+
+  labs(title = "TNFSF10")
+```
+
+```{r}
+
+#IRF1
+
+s01_IRF1.r <- read.delim("data/genes/IRF1_filtered_sRNA_01_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "IRF1") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s01") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 235 & position < 1212 ~ "CDS", TRUE ~"UTR"))
+
+s02_IRF1.r <- read.delim("data/genes/IRF1_filtered_sRNA_02_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "IRF1") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s02") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 235 & position < 1212 ~ "CDS", TRUE ~"UTR"))
+
+s03_IRF1.r <- read.delim("data/genes/IRF1_filtered_sRNA_03_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "IRF1") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s03") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 235 & position < 1212 ~ "CDS", TRUE ~"UTR"))
+
+s07_IRF1.r <- read.delim("data/genes/IRF1_filtered_sRNA_07_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "IRF1") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s07") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 235 & position < 1212 ~ "CDS", TRUE ~"UTR"))
+
+s08_IRF1.r <- read.delim("data/genes/IRF1_filtered_sRNA_08_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "IRF1") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s08") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 235 & position < 1212 ~ "CDS", TRUE ~"UTR"))
+
+s09_IRF1.r <- read.delim("data/genes/IRF1_filtered_sRNA_09_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "IRF1") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s09") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 235 & position < 1212 ~ "CDS", TRUE ~"UTR"))
+###########################################################################################
+s01_IRF1.m <- read.delim("data/genes/IRF1_filtered_mRNA_01_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "IRF1") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s01") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 235 & position < 1212 ~ "CDS", TRUE ~"UTR"))
+
+s02_IRF1.m <- read.delim("data/genes/IRF1_filtered_mRNA_02_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "IRF1") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s02") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 235 & position < 1212 ~ "CDS", TRUE ~"UTR"))
+
+s03_IRF1.m <- read.delim("data/genes/IRF1_filtered_mRNA_03_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "IRF1") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s03") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 235 & position < 1212 ~ "CDS", TRUE ~"UTR"))
+
+s07_IRF1.m <- read.delim("data/genes/IRF1_filtered_mRNA_07_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>% 
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "IRF1") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s07") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 235 & position < 1212 ~ "CDS", TRUE ~"UTR"))
+
+s08_IRF1.m <- read.delim("data/genes/IRF1_filtered_mRNA_08_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "IRF1") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s08") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 235 & position < 1212 ~ "CDS", TRUE ~"UTR"))
+
+s09_IRF1.m <- read.delim("data/genes/IRF1_filtered_mRNA_09_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "IRF1") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s09") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 235 & position < 1212~ "CDS", TRUE ~"UTR"))
+
+IRF1_coverage <- bind_rows(s01_IRF1.r, s02_IRF1.r, s03_IRF1.r,s07_IRF1.r, s08_IRF1.r, s09_IRF1.r,
+                          s01_IRF1.m, s02_IRF1.m, s03_IRF1.m, s07_IRF1.m, s08_IRF1.m, s09_IRF1.m)
+ 
+IRF1_coverage$condition <- factor(IRF1_coverage$condition,levels =c("mock", "infect.24h"))  
+
+plot_IRF1_coverage <- ggplot(IRF1_coverage, aes(x=position, y=coverage, fill = feature, color = feature))+
+  geom_bar(stat = "identity", position = "identity")+
+  theme_set(theme_classic(base_size = 8))+
+  theme(plot.title = element_text(hjust = 0.5), 
+        legend.position = "none")+
+  scale_fill_manual(values=c("darkblue","red"))+
+  scale_color_manual(values=c("darkblue","red"))+
+  facet_grid(method~condition, labeller=labeller(condition = labels))+
+  labs(title = "IRF1")
+
+```
+
+
+```{r}
+gene_cov_plot <- plot_grid(plot_IL6_coverage,plot_JUN_coverage, plot_IFNB1_coverage, plot_CCL5_coverage, 
+                           plot_REL_coverage, plot_IRF7_coverage, plot_CXCL10_coverage, plot_TNFSF10_coverage, 
+                           plot_OAS2_coverage, plot_IRF1_coverage, ncol = 2)
+ggsave(
+  filename = "results/gene_cov_plot.PNG",
+  plot = gene_cov_plot,
+  width = 19,
+  height =25,
+  units = "cm",
+  dpi = 300,
+  limitsize = TRUE)
+
+```
+  
+
+```{r}
+#NFKB1
+
+s01_NFKB1.r <- read.delim("data/genes/NFKB1_filtered_sRNA_01_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "NFKB1") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s01") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 438 & position < 3347 ~ "CDS", TRUE ~"UTR"))
+
+s02_NFKB1.r <- read.delim("data/genes/NFKB1_filtered_sRNA_02_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "NFKB1") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s02") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 438 & position < 3347 ~ "CDS", TRUE ~"UTR"))
+
+s03_NFKB1.r <- read.delim("data/genes/NFKB1_filtered_sRNA_03_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "NFKB1") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s03") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 438 & position < 3347 ~ "CDS", TRUE ~"UTR"))
+
+s07_NFKB1.r <- read.delim("data/genes/NFKB1_filtered_sRNA_07_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "NFKB1") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s07") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 438 & position < 3347 ~ "CDS", TRUE ~"UTR"))
+
+s08_NFKB1.r <- read.delim("data/genes/NFKB1_filtered_sRNA_08_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "NFKB1") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s08") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 438 & position < 3347 ~ "CDS", TRUE ~"UTR"))
+
+s09_NFKB1.r <- read.delim("data/genes/NFKB1_filtered_sRNA_09_R1_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "NFKB1") %>% 
+  mutate(method = "riboseq") %>% 
+  mutate(sample = "s09") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 438 & position < 3347 ~ "CDS", TRUE ~"UTR"))
+###########################################################################################
+s01_NFKB1.m <- read.delim("data/genes/NFKB1_filtered_mRNA_01_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "NFKB1") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s01") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 438 & position < 3347 ~ "CDS", TRUE ~"UTR"))
+
+s02_NFKB1.m <- read.delim("data/genes/NFKB1_filtered_mRNA_02_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "NFKB1") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s02") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 438 & position < 3347 ~ "CDS", TRUE ~"UTR"))
+
+s03_NFKB1.m <- read.delim("data/genes/NFKB1_filtered_mRNA_03_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "NFKB1") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s03") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(feature = case_when(position > 438 & position < 3347 ~ "CDS", TRUE ~"UTR"))
+
+s07_NFKB1.m <- read.delim("data/genes/NFKB1_filtered_mRNA_07_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>% 
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "NFKB1") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s07") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 438 & position < 3347 ~ "CDS", TRUE ~"UTR"))
+
+s08_NFKB1.m <- read.delim("data/genes/NFKB1_filtered_mRNA_08_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "NFKB1") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s08") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 438 & position < 3347 ~ "CDS", TRUE ~"UTR"))
+
+s09_NFKB1.m <- read.delim("data/genes/NFKB1_filtered_mRNA_09_coverage.txt", header = FALSE) %>%
+  dplyr::rename(transcript = V1, position = V2, coverage = V3 ) %>%
+  mutate(position = as.numeric(position)) %>% 
+  mutate(gene = "NFKB1") %>% 
+  mutate(method = "RNAseq") %>% 
+  mutate(sample = "s09") %>% 
+  mutate(condition = "infect.24h") %>% 
+  mutate(feature = case_when(position > 438 & position < 3347~ "CDS", TRUE ~"UTR"))
+
+NFKB1_coverage <- bind_rows(s01_NFKB1.r, s02_NFKB1.r, s03_NFKB1.r,s07_NFKB1.r, s08_NFKB1.r, s09_NFKB1.r,
+                          s01_NFKB1.m, s02_NFKB1.m, s03_NFKB1.m, s07_NFKB1.m, s08_NFKB1.m, s09_NFKB1.m)
+ 
+NFKB1_coverage$condition <- factor(NFKB1_coverage$condition,levels =c("mock", "infect.24h"))  
+
+plot_NFKB1_coverage <- ggplot(NFKB1_coverage, aes(x=position, y=coverage, fill = feature))+
+  geom_bar(stat = "identity", position = "identity")+
+  theme_set(theme_classic(base_size = 8))+
+  theme(plot.title = element_text(hjust = 0.5))+
+  scale_fill_manual(values=c("darkblue","red"))+
+  facet_grid(method~condition)+
+  labs(title = "NFKB1")
+
+ggsave(
+  filename = "results/plot_NFKB1_coverage.PNG",
+  plot = plot_NFKB1_coverage,
+  width = 20,
+  height =12,
+  units = "cm",
+  dpi = 300,
+  limitsize = TRUE)
+```
+
+```{r}
+
+tRNA_01_plot <- read.delim("data/sRNA_01_R1_tRNA_coverage.txt", header = FALSE) %>% 
+  dplyr::rename(tRNA = V1, position = V2, coverage = V3) %>%
+  ggplot(aes(x= position, y = coverage ))+
+  geom_bar(stat = "Identity")+
+  geom_vline(xintercept = 34, color = "blue", linetype = "dashed")+
+  geom_vline(xintercept = 36, color = "blue", linetype = "dashed")+
+  annotate("text", x= 42, y = 20000000, label = "anticodon", color = "blue")
+
+ggsave(
+  filename = "results/tRNA_01_plot.PNG",
+  plot = tRNA_01_plot,
+  width = 20,
+  height =12,
+  units = "cm",
+  dpi = 300,
+  limitsize = TRUE)
+
+```
+
+```{r}
+
+tRNA_01 <- read.delim("data/sRNA_01_R1_tRNA_coverage.txt", header = FALSE) %>% 
+  dplyr::rename(tRNA = V1, position = V2, coverage = V3) %>%
+  separate(tRNA, c("taxon", "species", "RNA"), sep = "_") %>% 
+  separate(RNA, c("RNA", "amino_acid", "codon", "number1", "number2")) %>% 
+  mutate(type = case_when(amino_acid == "Ala" ~ "non polar",
+                            amino_acid == "Pro" ~ "non polar",
+                            amino_acid == "Gly" ~ "non polar",
+                            amino_acid == "Val" ~ "non polar",
+                            amino_acid == "Trp" ~ "non polar", 
+                            amino_acid == "Ile" ~ "non polar",
+                            amino_acid == "Phe" ~ "non polar",
+                            amino_acid == "Met" ~ "non polar",
+                            amino_acid == "Leu" ~ "non polar",
+                            amino_acid == "Thr" ~ "polar", 
+                            amino_acid == "Try" ~ "polar", 
+                            amino_acid == "Gln" ~ "polar",
+                            amino_acid == "Cys" ~ "polar",
+                            amino_acid == "Asn" ~ "polar",
+                            amino_acid == "Ser" ~ "polar", 
+                            amino_acid == "Glu" ~ "negatively charged",
+                            amino_acid == "Asp" ~ "negatively charged",
+                            amino_acid == "Lys" ~ "positively charged", 
+                            amino_acid == "His" ~ "positively charged",
+                            amino_acid == "Arg" ~ "positively charged"))
+
+amino_acid_plot_s01 <- ggplot(tRNA_01, aes(x= position, y = coverage, fill = type ))+
+  geom_bar(stat = "Identity")+
+  facet_wrap(~amino_acid)+
+  geom_vline(xintercept = 34, color = "blue", linetype = "dashed")+
+  geom_vline(xintercept = 36, color = "blue", linetype = "dashed")+
+  labs(title = "mock sample 01")
+
+ggsave(
+  filename = "results/amino_acid_plot_s01.PNG",
+  plot = amino_acid_plot_s01,
+  width = 20,
+  height =20,
+  units = "cm",
+  dpi = 300,
+  limitsize = TRUE)
+
+```
+
+```{r}
+
+tRNA_07 <- read.delim("data/sRNA_07_R1_tRNA_coverage.txt", header = FALSE) %>% 
+  dplyr::rename(tRNA = V1, position = V2, coverage = V3) %>%
+  separate(tRNA, c("taxon", "species", "RNA"), sep = "_") %>% 
+  separate(RNA, c("RNA", "amino_acid", "codon", "number1", "number2"))
+
+amino_acid_plot_s07 <- ggplot(tRNA_07, aes(x= position, y = coverage ))+
+  geom_bar(stat = "Identity")+
+  facet_wrap(~amino_acid)+
+  geom_vline(xintercept = 34, color = "blue", linetype = "dashed")+
+  geom_vline(xintercept = 36, color = "blue", linetype = "dashed")+
+  labs(title = "infect24h sample 07")
+
+ggsave(
+  filename = "results/amino_acid_plot_s07.PNG",
+  plot = amino_acid_plot_s07,
+  width = 20,
+  height =20,
+  units = "cm",
+  dpi = 300,
+  limitsize = TRUE)
+
+
+```
+
+```{r}
+tRNA_01_met <- read.delim("data/sRNA_01_R1_tRNA_coverage.txt", header = FALSE) %>% 
+  dplyr::rename(tRNA = V1, position = V2, coverage = V3) %>%
+  separate(tRNA, c("taxon", "species", "RNA"), sep = "_") %>% 
+  separate(RNA, c("RNA", "amino_acid", "codon", "number1", "number2")) %>%
+  unite("number",number1:number2) %>% 
+  dplyr::select(amino_acid, codon,number, position, coverage) %>% 
+  filter(amino_acid == "Met") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(sample = "01")
+tRNA_02_met<- read.delim("data/sRNA_02_R1_tRNA_coverage.txt", header = FALSE) %>% 
+  dplyr::rename(tRNA = V1, position = V2, coverage = V3) %>%
+  separate(tRNA, c("taxon", "species", "RNA"), sep = "_") %>% 
+  separate(RNA, c("RNA", "amino_acid", "codon", "number1", "number2")) %>% 
+  unite("number",number1:number2) %>% 
+  dplyr::select(amino_acid, codon,number, position, coverage) %>% 
+  filter(amino_acid == "Met") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(sample = "02")
+tRNA_03_met <- read.delim("data/sRNA_03_R1_tRNA_coverage.txt", header = FALSE) %>% 
+  dplyr::rename(tRNA = V1, position = V2, coverage = V3) %>%
+  separate(tRNA, c("taxon", "species", "RNA"), sep = "_") %>% 
+  separate(RNA, c("RNA", "amino_acid", "codon", "number1", "number2")) %>% 
+  unite("number",number1:number2) %>% 
+  dplyr::select(amino_acid, codon,number, position, coverage) %>% 
+  filter(amino_acid == "Met") %>% 
+  mutate(condition = "mock") %>% 
+  mutate(sample = "03")
+tRNA_07_met <- read.delim("data/sRNA_07_R1_tRNA_coverage.txt", header = FALSE) %>% 
+  dplyr::rename(tRNA = V1, position = V2, coverage = V3) %>%
+  separate(tRNA, c("taxon", "species", "RNA"), sep = "_") %>% 
+  separate(RNA, c("RNA", "amino_acid", "codon", "number1", "number2")) %>% 
+  unite("number",number1:number2) %>% 
+  dplyr::select(amino_acid, codon,number, position, coverage) %>% 
+  filter(amino_acid == "Met") %>% 
+  mutate(condition = "infect24h") %>% 
+  mutate(sample = "07")
+tRNA_08_met <- read.delim("data/sRNA_08_R1_tRNA_coverage.txt", header = FALSE) %>% 
+  dplyr::rename(tRNA = V1, position = V2, coverage = V3) %>%
+  separate(tRNA, c("taxon", "species", "RNA"), sep = "_") %>% 
+  separate(RNA, c("RNA", "amino_acid", "codon", "number1", "number2")) %>% 
+  unite("number",number1:number2) %>% 
+  dplyr::select(amino_acid, codon,number, position, coverage) %>% 
+  filter(amino_acid == "Met") %>% 
+  mutate(condition = "infect24h") %>% 
+  mutate(sample = "08")
+tRNA_09_met <- read.delim("data/sRNA_09_R1_tRNA_coverage.txt", header = FALSE) %>% 
+  dplyr::rename(tRNA = V1, position = V2, coverage = V3) %>%
+  separate(tRNA, c("taxon", "species", "RNA"), sep = "_") %>% 
+  separate(RNA, c("RNA", "amino_acid", "codon", "number1", "number2")) %>% 
+  unite("number",number1:number2) %>% 
+  dplyr::select(amino_acid, codon,number, position, coverage) %>% 
+  filter(amino_acid == "Met") %>% 
+  mutate(condition = "infect24h") %>% 
+  mutate(sample = "09")
+
+met_all <- bind_rows(tRNA_01_met, tRNA_02_met, tRNA_03_met, tRNA_07_met,
+                     tRNA_08_met, tRNA_09_met)
+
+met_plot <- ggplot(met_all, aes(x=position, y=coverage))+
+  geom_bar(stat = "Identity")+
+  facet_wrap(~condition)
+
+```
+
+```{r}
+
+start_codon <- read.csv("data/Transcript_start_stop_tss.txt", sep = ",") %>% 
+  filter(X5..UTR.start != "NA") %>%
+  mutate(diff = Transcription.start.site..TSS.- X5..UTR.end) %>% 
+  filter(diff == 0) %>% 
+  select(Transcript.stable.ID.version, Transcription.start.site..TSS.,X5..UTR.start, X5..UTR.end, Gene.name) %>% 
+  mutate(start_codon = X5..UTR.end -X5..UTR.start) %>% 
+  select(Transcript.stable.ID.version,Gene.name, start_codon ) %>% 
+  dplyr::rename(transcript_id = Transcript.stable.ID.version)
+
+
+
+s01_cov_start <- read.table("data/ids_filtered_sRNA_01_coverage.txt") %>%
+  dplyr::rename(transcript_id = V1) %>% 
+  left_join(start_codon, by = "transcript_id") %>%
+  mutate(CDS_start = V2-start_codon) %>% 
+  filter(CDS_start<200,CDS_start>-200)
+
+s02_cov_start <- read.table("data/ids_filtered_sRNA_02_coverage.txt") %>%
+  dplyr::rename(transcript_id = V1) %>% 
+  left_join(start_codon, by = "transcript_id") %>%
+  mutate(CDS_start = V2-start_codon) %>% 
+  filter(CDS_start<200,CDS_start>-200)
+
+s07_cov_start <- read.table("data/ids_filtered_sRNA_07_coverage.txt") %>%
+  dplyr::rename(transcript_id = V1) %>% 
+  left_join(start_codon, by = "transcript_id") %>%
+  mutate(CDS_start = V2-start_codon) %>% 
+  filter(CDS_start<200,CDS_start>-200)
+
+s01_cov_sum <- s01_cov_start %>% 
+  group_by(CDS_start) %>% 
+  summarise(coverage = sum(V3))
+
+s02_cov_sum <- s02_cov_start %>% 
+  group_by(CDS_start) %>% 
+  summarise(coverage = sum(V3))
+
+s07_cov_sum <- s07_cov_start %>% 
+  group_by(CDS_start) %>% 
+  summarise(coverage = sum(V3))
+
+metagene_plot_s01 <- ggplot(s01_cov_sum, aes(x=CDS_start, y = coverage))+
+  geom_bar(stat = "identity", position = "identity", fill = "#808080", color = "#808080")+
+  labs(x= "position from start codon", 
+       title = "mock")+
+  ylim(0, 800000)+
+  theme_set(theme_classic(base_size = 8))+
+  theme(plot.title = element_text(hjust = 0.5))
+
+
+metagene_plot_s07 <- ggplot(s07_cov_sum, aes(x=CDS_start, y = coverage))+
+  geom_bar(stat = "identity", position = "identity", fill = "#808080", color = "#808080")+
+  ylim(0, 800000)+
+  labs(x= "position from start codon", 
+       title = "24h SARS-CoV-2 infection")+
+  theme_set(theme_classic(base_size = 8))+
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggsave(
+  filename = "results/metagene_plot_s01.PNG",
+  plot = metagene_plot_s01,
+  width = 9,
+  height =5,
+  units = "cm",
+  dpi = 300,
+  limitsize = TRUE)
+
+ggsave(
+  filename = "results/metagene_plot_s02.PNG",
+  plot = metagene_plot_s02,
+  width = 10,
+  height =6,
+  units = "cm",
+  dpi = 300,
+  limitsize = TRUE)
+
+ggsave(
+  filename = "results/metagene_plot_s07.PNG",
+  plot = metagene_plot_s07,
+  width = 9,
+  height =5,
+  units = "cm",
+  dpi = 300,
+  limitsize = TRUE)
+  
+
+```
+

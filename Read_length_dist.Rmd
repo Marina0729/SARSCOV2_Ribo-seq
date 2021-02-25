@@ -1,0 +1,413 @@
+---
+title: "ReadLengthDist"
+author: "Marina Alexander"
+date: "01/12/2020"
+output:
+  pdf_document: default
+  html_document:
+    code_folding: hide
+---
+
+```{r setup, include=FALSE}
+
+# load libraries
+library(tidyverse)
+library(dplyr)
+library(knitr)
+library(dplyr)
+library(stringr)
+
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  fig.align = 'center'
+)
+```
+
+```{r}
+
+CDS_s01_total <- read.delim("data/filtered/RL_CDS_01.txt") %>%
+  filter(RL == "RL") %>%
+  dplyr::rename(read_length = X15, mock.01= X4) %>%
+  filter(read_length >=16, read_length <=42) %>%
+  group_by() %>% 
+  summarise(s01.lib.size = sum(mock.01))
+
+CDS_s01 <- read.delim("data/filtered/RL_CDS_01.txt") %>%
+  filter(RL == "RL") %>%
+  dplyr::rename(read_length = X15, mock.01= X4) %>%
+  filter(read_length >=16, read_length <=42) %>% 
+  dplyr::select(-RL) %>%
+  mutate(mock.01 = (mock.01/CDS_s01_total$s01.lib.size)*1000000) %>% 
+  as_tibble()
+##########################
+CDS_s02_total <- read.delim("data/filtered/RL_CDS_02.txt") %>%
+  filter(RL == "RL") %>%
+  dplyr::rename(read_length = X15, mock.02= X20) %>%
+  filter(read_length >=16, read_length <=42) %>%
+  group_by() %>% 
+  summarise(s02.lib.size = sum(mock.02))
+
+CDS_s02 <- read.delim("data/filtered/RL_CDS_02.txt") %>%
+  filter(RL == "RL") %>% 
+  dplyr::rename(read_length = X15, mock.02= X20) %>%
+  filter(read_length >=16, read_length <=42) %>%
+  dplyr::select(-RL) %>%
+  mutate(mock.02 = (mock.02/CDS_s02_total$s02.lib.size)*1000000) %>% 
+  as_tibble()
+############################
+CDS_s03_total <- read.delim("data/filtered/RL_CDS_03.txt") %>%
+  filter(RL == "RL") %>%
+  dplyr::rename(read_length = X15, mock.03= X10) %>%
+  filter(read_length >=16, read_length <=42) %>%
+  group_by() %>% 
+  summarise(s03.lib.size = sum(mock.03))
+
+CDS_s03 <- read.delim("data/filtered/RL_CDS_03.txt") %>%
+  filter(RL == "RL") %>% 
+  dplyr::rename(read_length = X15, mock.03= X10) %>% 
+  filter(read_length >=16, read_length <=42) %>%
+  dplyr::select(-RL) %>%
+  mutate(mock.03 = (mock.03/CDS_s03_total$s03.lib.size)*1000000) %>%
+  as_tibble()
+##########################
+CDS_s07_total <- read.delim("data/filtered/RL_CDS_07.txt") %>%
+  filter(RL == "RL") %>%
+  dplyr::rename(read_length = X14, infect24h.07= X1) %>%
+  filter(read_length >=16, read_length <=42) %>%
+  group_by() %>% 
+  summarise(s07.lib.size = sum(infect24h.07))
+
+CDS_s07 <- read.delim("data/filtered/RL_CDS_07.txt") %>%
+  filter(RL == "RL") %>% 
+  dplyr::rename(read_length = X14, infect24h.07= X1) %>%
+  filter(read_length >=16, read_length <=42) %>%
+  dplyr::select(-RL) %>%
+  mutate(infect24h.07 = (infect24h.07/CDS_s07_total$s07.lib.size)*1000000) %>%
+  as_data_frame()
+##########################
+CDS_s08_total <- read.delim("data/filtered/RL_CDS_08.txt") %>%
+  filter(RL == "RL") %>%
+  dplyr::rename(read_length = X14, mock.08= X1) %>%
+  filter(read_length >=16, read_length <=42) %>%
+  group_by() %>% 
+  summarise(s08.lib.size = sum(mock.08))
+
+CDS_s08 <- read.delim("data/filtered/RL_CDS_08.txt") %>%
+  filter(RL == "RL") %>% 
+  dplyr::rename(read_length= X14, infect24h.08= X1) %>%
+  filter(read_length >=16, read_length <=42) %>%
+  dplyr::select(-RL) %>% 
+  mutate(infect24h.08 = (infect24h.08/CDS_s08_total$s08.lib.size)*1000000) %>%
+  as_tibble()
+############################
+CDS_s09_total <- read.delim("data/filtered/RL_CDS_09.txt") %>%
+  filter(RL == "RL") %>%
+  dplyr::rename(read_length = X14, infect24h.09= X1) %>%
+  filter(read_length >=16, read_length <=42) %>%
+  group_by() %>% 
+  summarise(s09.lib.size = sum(infect24h.09))
+
+CDS_s09 <- read.delim("data/filtered/RL_CDS_09.txt") %>%
+  filter(RL == "RL") %>% 
+  dplyr::rename(read_length = X14, infect24h.09= X1) %>%
+  filter(read_length >=16, read_length <=42) %>% 
+  dplyr::select(-RL) %>%
+  mutate(infect24h.09 = (infect24h.09/CDS_s09_total$s09.lib.size)*1000000) %>%
+  as_tibble()
+#########################
+
+
+CDS <- left_join(CDS_s01,CDS_s02, by = "read_length") %>% 
+  left_join(CDS_s03, by = "read_length") %>% 
+  left_join(CDS_s07) %>% 
+  left_join(CDS_s08) %>% 
+  left_join(CDS_s09) %>% 
+  gather(sample, cpm, -read_length) %>% 
+  separate(sample, c("condition", "sample")) %>% 
+  mutate(condition = str_replace(condition, "infect24h", "24h SARS-CoV-2 infection"))
+
+CDS_stats <- CDS  %>% 
+  group_by(condition, read_length) %>% 
+  summarise(mean = mean(cpm), se = sd(cpm)/sqrt(3)) %>% 
+  mutate(upper = mean + se) %>% 
+  mutate(lower = mean - se)
+
+CDS_stats$condition<- factor(CDS_stats$condition, levels = c("mock", "24h SARS-CoV-2 infection"))
+
+read_length_CDS_plot <- ggplot(CDS_stats, aes(x = read_length,y = mean))+
+  geom_bar(stat = "Identity")+
+  geom_errorbar(aes(ymin = lower, ymax = upper), width =0.2)+
+  facet_wrap(~condition, nrow = 2)+
+  theme_set(theme_classic(base_size = 8)) +
+  labs(x="read length (nt)",
+       y = "counts per million",
+       title = "coding sequence")
+ggsave(
+  filename = "results/read_length_CDS_plot.PNG",
+  plot =read_length_CDS_plot,
+  width = 9,
+  height =11,
+  units = "cm",
+  dpi = 300,
+  limitsize = TRUE)
+
+```
+
+
+```{r}
+tRNA_s01_total <- read.delim("data/filtered/RL_tRNA_01.txt") %>%
+  filter(RL == "RL") %>%
+  dplyr::rename(read_length = X5, mock.01= X3257) %>%
+  filter(read_length >=25, read_length <=36) %>%
+  group_by() %>% 
+  summarise(s01.lib.size = sum(mock.01))
+
+tRNA_s01 <- read.delim("data/filtered/RL_tRNA_01.txt") %>%
+  filter(RL == "RL") %>%
+  dplyr::rename(read_length = X5, mock.01= X3257) %>%
+  filter(read_length >=25, read_length <=36) %>% 
+  dplyr::select(-RL) %>%
+  mutate(mock.01 = (mock.01/tRNA_s01_total$s01.lib.size)*1000000) %>% 
+  as_tibble()
+##########################
+tRNA_s02_total <- read.delim("data/filtered/RL_tRNA_02.txt") %>%
+  filter(RL == "RL") %>%
+  dplyr::rename(read_length = X5, mock.02= X3213) %>%
+  filter(read_length >=25, read_length <=36) %>%
+  group_by() %>% 
+  summarise(s02.lib.size = sum(mock.02))
+
+tRNA_s02 <- read.delim("data/filtered/RL_tRNA_02.txt") %>%
+  filter(RL == "RL") %>% 
+  dplyr::rename(read_length = X5, mock.02=X3213) %>%
+  filter(read_length >=25, read_length <=36) %>%
+  dplyr::select(-RL) %>%
+  mutate(mock.02 = (mock.02/tRNA_s02_total$s02.lib.size)*1000000) %>% 
+  as_tibble()
+############################
+tRNA_s03_total <- read.delim("data/filtered/RL_tRNA_03.txt") %>%
+  filter(RL == "RL") %>%
+  dplyr::rename(read_length = X5, mock.03= X2927) %>%
+  filter(read_length >=25, read_length <=36) %>%
+  group_by() %>% 
+  summarise(s03.lib.size = sum(mock.03))
+
+tRNA_s03 <- read.delim("data/filtered/RL_tRNA_03.txt") %>%
+  filter(RL == "RL") %>% 
+  dplyr::rename(read_length = X5, mock.03= X2927) %>% 
+  filter(read_length >=25, read_length <=36) %>%
+  dplyr::select(-RL) %>%
+  mutate(mock.03 = (mock.03/tRNA_s03_total$s03.lib.size)*1000000) %>%
+  as_tibble()
+##########################
+tRNA_s07_total <- read.delim("data/filtered/RL_tRNA_07.txt") %>%
+  filter(RL == "RL") %>%
+  dplyr::rename(read_length = X5, infect24h.07= X1758) %>%
+  filter(read_length >=25, read_length <=36) %>%
+  group_by() %>% 
+  summarise(s07.lib.size = sum(infect24h.07))
+
+tRNA_s07 <- read.delim("data/filtered/RL_tRNA_07.txt") %>%
+  filter(RL == "RL") %>% 
+  dplyr::rename(read_length = X5, infect24h.07= X1758) %>%
+  filter(read_length >=25, read_length <=36) %>%
+  dplyr::select(-RL) %>%
+  mutate(infect24h.07 = (infect24h.07/tRNA_s07_total$s07.lib.size)*1000000) %>%
+  as_data_frame()
+##########################
+tRNA_s08_total <- read.delim("data/filtered/RL_tRNA_08.txt") %>%
+  filter(RL == "RL") %>%
+  dplyr::rename(read_length = X5, mock.08= X4445) %>%
+  filter(read_length >=25, read_length <=36) %>%
+  group_by() %>% 
+  summarise(s08.lib.size = sum(mock.08))
+
+tRNA_s08 <- read.delim("data/filtered/RL_tRNA_08.txt") %>%
+  filter(RL == "RL") %>% 
+  dplyr::rename(read_length= X5, infect24h.08= X4445) %>%
+  filter(read_length >=25, read_length <=36) %>%
+  dplyr::select(-RL) %>% 
+  mutate(infect24h.08 = (infect24h.08/tRNA_s08_total$s08.lib.size)*1000000) %>%
+  as_tibble()
+############################
+tRNA_s09_total <- read.delim("data/filtered/RL_tRNA_09.txt") %>%
+  filter(RL == "RL") %>%
+  dplyr::rename(read_length = X5, infect24h.09= X2971) %>%
+  filter(read_length >=25, read_length <=36) %>%
+  group_by() %>% 
+  summarise(s09.lib.size = sum(infect24h.09))
+
+tRNA_s09 <- read.delim("data/filtered/RL_tRNA_09.txt") %>%
+  filter(RL == "RL") %>% 
+  dplyr::rename(read_length = X5, infect24h.09= X2971) %>%
+  filter(read_length >=25, read_length <=36) %>% 
+  dplyr::select(-RL) %>%
+  mutate(infect24h.07 = (infect24h.09/tRNA_s09_total$s09.lib.size)*1000000) %>%
+  as_tibble()
+#########################
+
+
+tRNA <- left_join(tRNA_s01,tRNA_s02, by = "read_length") %>% 
+  left_join(tRNA_s03, by = "read_length") %>% 
+  left_join(tRNA_s07) %>% 
+  left_join(tRNA_s08) %>% 
+  left_join(tRNA_s09) %>% 
+  gather(sample, cpm, -read_length) %>% 
+  separate(sample, c("condition", "sample")) %>% 
+  mutate(condition = str_replace(condition, "infect24h", "24h SARS-CoV-2 infection"))
+
+tRNA$condition<- factor(tRNA$condition, levels = c("mock", "24h SARS-CoV-2 infection"))
+
+read_length_tRNA_plot <- ggplot(tRNA, aes(x = read_length,y = cpm))+
+  geom_bar(stat = "Identity")+
+  facet_wrap(~condition, nrow = 2)+
+  theme_set(theme_classic(base_size = 8)) +
+  labs(y="counts per million", 
+       x="read length (nt)", 
+       title = "tRNA")
+
+ggsave(
+  filename = "results/read_length_tRNA_plot.PNG",
+  plot =read_length_tRNA_plot,
+  width = 10,
+  height =10,
+  units = "cm",
+  dpi = 300,
+  limitsize = TRUE)
+
+```
+
+```{r}
+
+
+fiveUTR_s01_total <- read.delim("data/filtered/RL_fiveUTR_01.txt") %>%
+  filter(RL == "RL") %>%
+  dplyr::rename(read_length = X15, mock.01= X7) %>%
+  filter(read_length >=16, read_length <=42) %>%
+  group_by() %>% 
+  summarise(s01.lib.size = sum(mock.01))
+
+fiveUTR_s01 <- read.delim("data/filtered/RL_fiveUTR_01.txt") %>%
+  filter(RL == "RL") %>%
+  dplyr::rename(read_length = X15, mock.01= X7) %>%
+  filter(read_length >=16, read_length <=42) %>% 
+  dplyr::select(-RL) %>%
+  mutate(mock.01 = (mock.01/fiveUTR_s01_total$s01.lib.size)*1000000) %>% 
+  as_tibble()
+##########################
+fiveUTR_s02_total <- read.delim("data/filtered/RL_fiveUTR_02.txt") %>%
+  filter(RL == "RL") %>%
+  dplyr::rename(read_length = X15, mock.02= X20) %>%
+  filter(read_length >=16, read_length <=42) %>%
+  group_by() %>% 
+  summarise(s02.lib.size = sum(mock.02))
+
+fiveUTR_s02 <- read.delim("data/filtered/RL_fiveUTR_02.txt") %>%
+  filter(RL == "RL") %>% 
+  dplyr::rename(read_length = X15, mock.02= X20) %>%
+  filter(read_length >=16, read_length <=42) %>%
+  dplyr::select(-RL) %>%
+  mutate(mock.02 = (mock.02/fiveUTR_s02_total$s02.lib.size)*1000000) %>% 
+  as_tibble()
+############################
+fiveUTR_s03_total <- read.delim("data/filtered/RL_fiveUTR_03.txt") %>%
+  filter(RL == "RL") %>%
+  dplyr::rename(read_length = X15, mock.03= X13) %>%
+  filter(read_length >=16, read_length <=42) %>%
+  group_by() %>% 
+  summarise(s03.lib.size = sum(mock.03))
+
+fiveUTR_s03 <- read.delim("data/filtered/RL_fiveUTR_03.txt") %>%
+  filter(RL == "RL") %>% 
+  dplyr::rename(read_length = X15, mock.03= X13) %>% 
+  filter(read_length >=16, read_length <=42) %>%
+  dplyr::select(-RL) %>%
+  mutate(mock.03 = (mock.03/fiveUTR_s03_total$s03.lib.size)*1000000) %>%
+  as_tibble()
+##########################
+fiveUTR_s07_total <- read.delim("data/filtered/RL_fiveUTR_07.txt") %>%
+  filter(RL == "RL") %>%
+  dplyr::rename(read_length = X14, infect24h.07= X1) %>%
+  filter(read_length >=16, read_length <=42) %>%
+  group_by() %>% 
+  summarise(s07.lib.size = sum(infect24h.07))
+
+fiveUTR_s07 <- read.delim("data/filtered/RL_fiveUTR_07.txt") %>%
+  filter(RL == "RL") %>% 
+  dplyr::rename(read_length = X14, infect24h.07= X1) %>%
+  filter(read_length >=16, read_length <=42) %>%
+  dplyr::select(-RL) %>%
+  mutate(infect24h.07 = (infect24h.07/fiveUTR_s07_total$s07.lib.size)*1000000) %>%
+  as_data_frame()
+##########################
+fiveUTR_s08_total <- read.delim("data/filtered/RL_fiveUTR_08.txt") %>%
+  filter(RL == "RL") %>%
+  dplyr::rename(read_length = X14, mock.08= X1) %>%
+  filter(read_length >=16, read_length <=42) %>%
+  group_by() %>% 
+  summarise(s08.lib.size = sum(mock.08))
+
+fiveUTR_s08 <- read.delim("data/filtered/RL_fiveUTR_08.txt") %>%
+  filter(RL == "RL") %>% 
+  dplyr::rename(read_length= X14, infect24h.08= X1) %>%
+  filter(read_length >=16, read_length <=42) %>%
+  dplyr::select(-RL) %>% 
+  mutate(infect24h.08 = (infect24h.08/fiveUTR_s08_total$s08.lib.size)*1000000) %>%
+  as_tibble()
+############################
+fiveUTR_s09_total <- read.delim("data/filtered/RL_fiveUTR_09.txt") %>%
+  filter(RL == "RL") %>%
+  dplyr::rename(read_length = X14, infect24h.09= X1) %>%
+  filter(read_length >=16, read_length <=42) %>%
+  group_by() %>% 
+  summarise(s09.lib.size = sum(infect24h.09))
+
+fiveUTR_s09 <- read.delim("data/filtered/RL_fiveUTR_09.txt") %>%
+  filter(RL == "RL") %>% 
+  dplyr::rename(read_length = X14, infect24h.09= X1) %>%
+  filter(read_length >=16, read_length <=42) %>% 
+  dplyr::select(-RL) %>%
+  mutate(infect24h.09 = (infect24h.09/fiveUTR_s09_total$s09.lib.size)*1000000) %>%
+  as_tibble()
+#########################
+
+
+fiveUTR <- left_join(fiveUTR_s01,fiveUTR_s02, by = "read_length") %>% 
+  left_join(fiveUTR_s03, by = "read_length") %>% 
+  left_join(fiveUTR_s07) %>% 
+  left_join(fiveUTR_s08) %>% 
+  left_join(fiveUTR_s09) %>% 
+  gather(sample, cpm, -read_length) %>% 
+  separate(sample, c("condition", "sample")) %>% 
+  mutate(condition = str_replace(condition, "infect24h", "24h SARS-CoV-2 infection"))
+
+fiveUTR_stats <- fiveUTR  %>% 
+  group_by(condition, read_length) %>% 
+  summarise(mean = mean(cpm), se = sd(cpm)/sqrt(3)) %>% 
+  mutate(upper = mean + se) %>% 
+  mutate(lower = mean - se)
+
+fiveUTR_stats$condition<- factor(fiveUTR_stats$condition, levels = c("mock", "24h SARS-CoV-2 infection"))
+
+read_length_fiveUTR_plot <- ggplot(fiveUTR_stats, aes(x = read_length,y = mean))+
+  geom_bar(stat = "Identity")+
+  geom_errorbar(aes(ymin = lower, ymax = upper), width =0.2)+
+  facet_wrap(~condition, nrow = 2)+
+  theme_set(theme_classic(base_size = 8)) +
+  labs(y="counts per million", 
+       x="read length (nt)", 
+       title = "5'UTR")
+
+ggsave(
+  filename = "results/read_length_fiveUTR_plot.PNG",
+  plot =read_length_fiveUTR_plot,
+  width = 9,
+  height =11,
+  units = "cm",
+  dpi = 300,
+  limitsize = TRUE)
+
+```
+
